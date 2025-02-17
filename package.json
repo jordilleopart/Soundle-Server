@@ -1,0 +1,28 @@
+{
+  "name": "soundle-server",
+  "version": "1.0.0",
+  "description": "Server side of the Soundle web application developed for the ECV course at UPF, 2025.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ECV2025-Soundle/Soundle-Server.git"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "web",
+    "soundle",
+    "ECV",
+    "spotify"
+  ],
+  "author": "ECV2025-Soundle",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ECV2025-Soundle/Soundle-Server/issues"
+  },
+  "homepage": "https://github.com/ECV2025-Soundle/Soundle-Server#readme"
+}
