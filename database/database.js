@@ -26,5 +26,17 @@ export class Users {
             `INSERT INTO users (user_name, user_password)
             VALUES (?, ?)
             `, [username, password]);
+    } 
+}
+
+export class UserStats {
+    static async getUserStats(user_id) {
+        const [userStats] = await pool.query(
+            `SELECT *
+            FROM userStats
+            WHERE user_id = ?
+            `, [user_id]);
+
+        return userStats[0];
     }
 }

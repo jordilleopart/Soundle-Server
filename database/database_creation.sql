@@ -26,8 +26,8 @@ CREATE TABLE track (
 
 CREATE TABLE userStats (
     user_id BINARY(16), 
-    total_games INT NOT NULL,
-    total_wins INT NOT NULL,
+    total_games INT NOT NULL DEFAULT 0,
+    total_wins INT NOT NULL DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
@@ -45,3 +45,17 @@ CREATE TABLE playlistTrack(
     track_id VARCHAR(255),
     FOREIGN KEY (track_id) REFERENCES track(track_id)
 );
+
+-- TRIGGERS
+
+DELIMITER $$
+
+CREATE TRIGGER after_user_insert
+AFTER INSERT ON users
+FOR EACH ROW
+BEGIN
+    INSERT INTO userStats (user_id, total_games, total_wins)
+    VALUES (NEW.user_id, 0, 0);
+END $$
+
+DELIMITER ;

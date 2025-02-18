@@ -22,8 +22,6 @@ signupRouter.post("/", async (req, res) => {
     const hashed_password = crypto.createHash('md5').update(password + process.env.PASSWORD_SALT).digest('hex');
     await Users.createNewUser(username, hashed_password);
 
-    console.log(hashed_password);
-
     // send "201 - Created"
     return res.status(201).send();
 })

@@ -1,4 +1,5 @@
 import crypto from 'crypto';        // used for md5 hash for password storing
+import jwt from 'jsonwebtoken';
 import { Router } from 'express';
 import { Users } from '../database/database.js';    // used to access Users table from our MySQL database
 
@@ -19,15 +20,14 @@ loginRouter.post("/", async (req, res) => {
     
     const hashed_password = crypto.createHash('md5').update(password + process.env.PASSWORD_SALT).digest('hex');
 
-    console.log(hashed_password);
-
-    // Password is not correct
+    // Password is not correct, send "401 - Unauthorized"
     if (hashed_password !== user.user_password) return res.status(401).send();
 
-    // TODO: authenticate user using JWT token
+    // Generate the JWT Access token
+    const JWTAccessToken = jwt.sign(user, process.env.JWT_SECRET_TOKEN, { expiresIn: "1d" });
 
-    return res.send();
-})
-
+    // Send JWT access token to client in the 'Authorization' header
+    return res.setHeader('Authorization', `Bearer ${JWTAccessToken}`).send();
+});
 
 export default loginRouter;
