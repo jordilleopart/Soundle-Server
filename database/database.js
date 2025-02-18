@@ -20,4 +20,11 @@ export class Users {
             `, [username]);
         return user[0];
     }
+
+    static async createNewUser(username, password) {
+        await pool.query(
+            `INSERT INTO users (user_name, user_password)
+            VALUES (?, ?)
+            `, [username, password]);
+    }
 }

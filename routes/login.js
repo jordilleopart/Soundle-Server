@@ -10,14 +10,23 @@ loginRouter.post("/", async (req, res) => {
     const { username, password } = req.body;
 
     // if any is missing, send "400 - Bad Request"
-    if (!username || !password) return res.state(400).send();
+    if (!username || !password) return res.status(400).send();
 
     const user = await Users.checkUsernameExists(username);
     
     // if there's no user with that username, send "401 - Unauthorized"
-    if (!user.user_password) return res.state(401).send();
+    if (!user) return res.status(401).send();
+    
+    const hashed_password = crypto.createHash('md5').update(password + process.env.PASSWORD_SALT).digest('hex');
 
-    res.send();
+    console.log(hashed_password);
+
+    // Password is not correct
+    if (hashed_password !== user.user_password) return res.status(401).send();
+
+    // TODO: authenticate user using JWT token
+
+    return res.send();
 })
 
 
