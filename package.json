@@ -2,9 +2,10 @@
   "name": "soundle-server",
   "version": "1.0.0",
   "description": "Server side of the Soundle web application developed for the ECV course at UPF, 2025.",
+  "type": "module",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js",
     "start": "node server.js"
   },
   "repository": {
@@ -24,5 +25,15 @@
   "bugs": {
     "url": "https://github.com/ECV2025-Soundle/Soundle-Server/issues"
   },
-  "homepage": "https://github.com/ECV2025-Soundle/Soundle-Server#readme"
+  "homepage": "https://github.com/ECV2025-Soundle/Soundle-Server#readme",
+  "dependencies": {
+    "dotenv": "16.4.7",
+    "express": "4.21.2",
+    "jsonwebtoken": "9.0.2",
+    "mysql2": "3.12.0",
+    "soundle-server": "file:"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
 }
