@@ -2,6 +2,7 @@ import 'dotenv/config';     // important to define it like this and at the top f
 import express from 'express';
 import loginRouter from './routes/login.js';
 import signupRouter from './routes/signup.js';
+import trackInfoRouter from './routes/trackInfo.js';
 
 // initialize server
 const PORT = process.env.PORT || 3000;
@@ -13,6 +14,7 @@ app.use(express.json());
 // import all subsections (routers) of the app
 app.use("/login", loginRouter);
 app.use("/signup", signupRouter);
+app.use("/gettrack", trackInfoRouter);
 
 // Start listening
 app.listen(PORT, () => {
