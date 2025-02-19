@@ -39,12 +39,18 @@ const ensureSpotifyToken = async (req, res, next) => {
     next();
 };
 
-// Endpoint para buscar canciones por nombre
+// Endpoint para buscar canciones por nombre y opcionalmente por artista
 trackInfoRouter.get('/search', ensureSpotifyToken, async (req, res) => {
-    const { trackName } = req.query;
+    const { trackName, artistName } = req.query;
 
     if (!trackName) {
         return res.status(400).send({ error: 'Track name is required' });
+    }
+
+    // Construir la consulta de búsqueda
+    let query = `track:${trackName}`;
+    if (artistName) {
+        query += ` artist:${artistName}`;
     }
 
     try {
@@ -53,10 +59,10 @@ trackInfoRouter.get('/search', ensureSpotifyToken, async (req, res) => {
                 'Authorization': `Bearer ${spotifyToken}`
             },
             params: {
-                q: trackName,
+                q: query,
                 type: 'track',
-                limit: 5,
-                market: 'ES'
+                limit: 10,
+                market: 'ES' // Añadir el parámetro de mercado español
             }
         });
 
