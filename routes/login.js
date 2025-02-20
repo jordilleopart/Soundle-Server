@@ -11,7 +11,7 @@ loginRouter.post("/", async (req, res) => {
     const { username, password } = req.body;
 
     // if any is missing, send "400 - Bad Request"
-    if (!username || !password) return res.status(400).send();
+    if (!username || !password) return res.status(400).send(JSON.stringify({ message: "Bad Request. Expected username and password." }));
 
     const user = await Users.checkUsernameExists(username);
     

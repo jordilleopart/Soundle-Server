@@ -8,8 +8,12 @@ USE soundle_database;
 -- Create table if it does not exist
 CREATE TABLE users (
     user_id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
-    user_name VARCHAR(255) NOT NULL UNIQUE,
-    user_password VARCHAR(255) NOT NULL
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    user_email VARCHAR(50) NOT NULL UNIQUE,
+    user_name VARCHAR(50) NOT NULL UNIQUE,
+    user_password CHAR(32) NOT NULL,
+    join_date TIMESTAMP NOT NULL DEFAULT NOW()
 ); 
 
 -- This table information is based on the Spotify API

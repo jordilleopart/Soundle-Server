@@ -1,5 +1,7 @@
 import mysql from 'mysql2/promise';
 
+const ER_DUP_ENTRY_REGEX = /users\.(\S+)/;
+
 const dbConfig = {
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER,
@@ -26,7 +28,27 @@ export class Users {
             `INSERT INTO users (user_name, user_password)
             VALUES (?, ?)
             `, [username, password]);
-    } 
+    }
+
+    static async createNewUser(firstName, lastName, email, username, password) {
+        try {
+            // Attempt to insert the new user into the database
+            await pool.query(
+                `INSERT INTO users (first_name, last_name, user_email, user_name, user_password) 
+                VALUES (?, ?, ?, ?, ?)`,
+                [firstName, lastName, email, username, password]
+            );
+            return 200;
+        } catch (err) {
+            // Handle specific unique constraint violation error (MySQL)
+            if (err.code === 'ER_DUP_ENTRY') {
+                const key = err.sqlMessage.match(ER_DUP_ENTRY_REGEX)[1];
+                // ER_DUP_ENTRY occurs when there's a duplicate entry for a unique field
+                return {status: 409, key: key}; // Return 409 for conflict
+            }
+            return 500; // Return 500 for internal server error
+        }
+    }
 }
 
 export class UserStats {
