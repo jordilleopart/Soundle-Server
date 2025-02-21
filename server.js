@@ -12,10 +12,9 @@ const app = express();
 
 // Define CORS options
 const corsOptions = {
-    // origin: /^(http:\/\/127.0.0.1:\d+)$/,               // Allow any port on localhost
-    origin: '*',                                        // Allow any origin
-    methods: ['GET', 'POST'],                           // Allow only GET and POST requests
-    allowedHeaders: ['Authorization', 'Content-Type'],  // Allow Authorization and Content-Type headers
+	origin: '*',                                        // Allow any origin
+	methods: ['GET', 'POST'],                           // Allow only GET and POST requests
+	allowedHeaders: ['Authorization', 'Content-Type'],  // Allow Authorization and Content-Type headers
 };
   
 // Use CORS middleware with the specified options
