@@ -9,7 +9,7 @@ const trackInfoRouter = Router();
 let spotifyToken = null;
 let tokenExpirationTime = null;
 
-// Función para obtener un nuevo token de Spotify
+// Function to get a new Spotify token
 const getSpotifyToken = async () => {
     const clientId = process.env.SPOTIFY_CLIENT_ID;
     const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
@@ -31,7 +31,7 @@ const getSpotifyToken = async () => {
     }
 };
 
-// Middleware para asegurarse de que el token de Spotify esté activo
+// Middleware to ensure the Spotify token is active
 const ensureSpotifyToken = async (req, res, next) => {
     if (!spotifyToken || Date.now() >= tokenExpirationTime) {
         await getSpotifyToken();
@@ -39,7 +39,7 @@ const ensureSpotifyToken = async (req, res, next) => {
     next();
 };
 
-// Endpoint para buscar canciones por nombre y opcionalmente por artista
+// Endpoint to search for tracks by name and optionally by artist
 trackInfoRouter.get('/search', ensureSpotifyToken, async (req, res) => {
     const { trackName, artistName } = req.query;
 
@@ -47,30 +47,74 @@ trackInfoRouter.get('/search', ensureSpotifyToken, async (req, res) => {
         return res.status(400).send({ error: 'Track name is required' });
     }
 
-    // Construir la consulta de búsqueda
+    // Build the search query
     let query = `track:${trackName}`;
     if (artistName) {
         query += ` artist:${artistName}`;
     }
 
     try {
-        const response = await axios.get('https://api.spotify.com/v1/search', {
+        const queryParams = new URLSearchParams({
+            q: query,
+            type: 'track',
+            limit: 5,
+            market: 'ES'
+        }).toString();
+
+        const response = await fetch(`https://api.spotify.com/v1/search?${queryParams}`, {
+            method: 'GET',
             headers: {
                 'Authorization': `Bearer ${spotifyToken}`
-            },
-            params: {
-                q: query,
-                type: 'track',
-                limit: 10,
-                market: 'ES' // Añadir el parámetro de mercado español
             }
         });
 
-        const tracks = response.data.tracks.items;
+        if (!response.ok) {
+            throw new Error('Failed to fetch tracks from Spotify');
+        }
+
+        const data = await response.json();
+        const tracks = data.tracks.items.map(track => ({
+            id: track.id,
+            name: track.name,
+            artist: track.artists.map(artist => artist.name).join(', '),
+            release_date: track.album.release_date
+        }));
+
         res.send(tracks);
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: 'Failed to fetch tracks from Spotify' });
+    }
+});
+
+// Endpoint to get track details by track ID
+trackInfoRouter.get('/track/:id', ensureSpotifyToken, async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const response = await fetch(`https://api.spotify.com/v1/tracks/${id}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${spotifyToken}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch track details from Spotify');
+        }
+
+        const trackData = await response.json();
+        const trackDetails = {
+            name: trackData.name,
+            artist: trackData.artists.map(artist => artist.name).join(', '),
+            release_date: trackData.album.release_date,
+            album_cover_url: trackData.album.images[0]?.url,
+            preview_url: trackData.preview_url
+        };
+        res.send(trackDetails);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: 'Failed to fetch track details from Spotify' });
     }
 });
 

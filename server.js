@@ -14,7 +14,7 @@ app.use(express.json());
 // import all subsections (routers) of the app
 app.use("/login", loginRouter);
 app.use("/signup", signupRouter);
-app.use("/gettrack", trackInfoRouter);
+app.use("/track", trackInfoRouter);
 
 // Start listening
 app.listen(PORT, () => {
