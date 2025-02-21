@@ -17,10 +17,10 @@ CREATE TABLE track (
     track_id VARCHAR(255) PRIMARY KEY ,
     track_name VARCHAR(255) NOT NULL,
     track_artist VARCHAR(255) NOT NULL,
-    track_album VARCHAR(255) NOT NULL,
-    track_release_date INT NOT NULL,
+    -- track_album VARCHAR(255) NOT NULL, 
+    track_release_date DATE NOT NULL,
     track_cover_url VARCHAR(255) NOT NULL,
-    track_genere VARCHAR(255) NOT NULL,
+    -- track_genere VARCHAR(255) NOT NULL,
     track_preview_url VARCHAR(255) -- This can be null in the Spotify API, check before adding to the database
 );
 

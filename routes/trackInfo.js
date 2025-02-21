@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import axios from 'axios';
+import axios from 'axios'; // dont used anymore -> unistall axios 
 import dotenv from 'dotenv';
+import { Track } from '../database/database.js'; 
 
 dotenv.config();
 
@@ -105,16 +106,44 @@ trackInfoRouter.get('/track/:id', ensureSpotifyToken, async (req, res) => {
 
         const trackData = await response.json();
         const trackDetails = {
+            id: trackData.id,
             name: trackData.name,
             artist: trackData.artists.map(artist => artist.name).join(', '),
             release_date: trackData.album.release_date,
             album_cover_url: trackData.album.images[0]?.url,
-            preview_url: trackData.preview_url
+            preview_url: trackData.preview_url //using this for now but is not working
         };
         res.send(trackDetails);
+
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: 'Failed to fetch track details from Spotify' });
+    }
+});
+
+trackInfoRouter.post("/", async (req, res) => {
+    // get track information
+    const { id, name, artist, release_date, album_cover_url, preview_url } = req.body;
+
+    // if any is missing send "400 - Bad Request"
+    if (!id || !name || !artist || !release_date || !album_cover_url) {
+        return res.status(400).send({ error: 'Missing required information' });
+    }
+
+    const track = await Track.checkTrackExists(id);
+
+    // there already exists a track with that id, send "409 - Conflict"
+    if (track !== undefined) return res.status(409).send();
+
+    try {
+        await Track.createNewTrack(id, name, artist, release_date, album_cover_url, preview_url);
+        
+        // send "201 - Created"
+        res.status(201).send();
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: 'Failed to store track information' });
     }
 });
 
