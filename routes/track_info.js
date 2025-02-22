@@ -126,7 +126,7 @@ trackInfoRouter.post("/", async (req, res) => {
     const { id, name, artist, release_date, album_cover_url, preview_url } = req.body;
 
     // if any is missing send "400 - Bad Request"
-    if (!id || !name || !artist || !release_date || !album_cover_url) {
+    if (!id || !name || !artist || !release_date || !album_cover_url || !preview_url) {
         return res.status(400).send({ error: 'Missing required information' });
     }
 
@@ -145,6 +145,18 @@ trackInfoRouter.post("/", async (req, res) => {
         console.error(error);
         res.status(500).send({ error: 'Failed to store track information' });
     }
+});
+
+//
+trackInfoRouter.get('/random', (req, res) => {
+    Track.getRandomTrack()
+        .then(track => {
+            res.send(track);
+        })
+        .catch(error => {
+            console.error(error);
+            res.status(500).send({ error: 'Failed to fetch random track' });
+        });
 });
 
 export default trackInfoRouter;

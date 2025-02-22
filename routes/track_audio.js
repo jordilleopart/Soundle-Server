@@ -31,9 +31,9 @@ trackAudioRouter.get('/search', async (req, res) => {
 
         const video = data.items[0];
         const videoDetails = {
-            title: video.snippet.title,
-            description: video.snippet.description,
-            videoId: video.id.videoId,
+            //title: video.snippet.title,
+            //description: video.snippet.description,
+            //videoId: video.id.videoId,
             url: `https://www.youtube.com/watch?v=${video.id.videoId}`
         };
 

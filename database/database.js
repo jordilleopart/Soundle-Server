@@ -45,4 +45,14 @@ export class Track {
             `, [id]);
         return track[0];
     }
+    static async getRandomTrack() {
+        const [track] = await pool.query(
+            `SELECT track_id, track_name, track_artist, track_release_date, track_cover_url, track_preview_url
+            FROM track
+            ORDER BY RAND()
+            LIMIT 1
+            `);
+        return track[0]; // Devuelve el primer (y único) resultado
+    }
+
 }
