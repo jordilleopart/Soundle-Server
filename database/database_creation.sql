@@ -7,7 +7,7 @@ USE soundle_database;
 
 -- Create table if it does not exist
 CREATE TABLE users (
-    user_id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    user_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     user_email VARCHAR(50) NOT NULL UNIQUE,
@@ -29,7 +29,7 @@ CREATE TABLE track (
 );
 
 CREATE TABLE userStats (
-    user_id BINARY(16), 
+    user_id CHAR(36), 
     total_games INT NOT NULL DEFAULT 0,
     total_wins INT NOT NULL DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
@@ -39,7 +39,7 @@ CREATE TABLE playlist(
     -- playlist_id BINARY(16) PRIMARY KEY DEFAULT(UUID_TO_BIN(UUID()) check if necessary
     playlist_name VARCHAR(255) PRIMARY KEY NOT NULL,
     playlist_description VARCHAR(255),
-    playlist_creator BINARY(16) NOT NULL,
+    playlist_creator CHAR(36) NOT NULL,
 	FOREIGN KEY (playlist_creator) REFERENCES users(user_id)
 );
 
@@ -50,7 +50,32 @@ CREATE TABLE playlistTrack(
     FOREIGN KEY (track_id) REFERENCES track(track_id)
 );
 
+CREATE TABLE games (
+    game_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    num_players INT NOT NULL DEFAULT 6,
+    rounds INT NOT NULL DEFAULT 5,
+    playlist VARCHAR(255) NOT NULL,
+    game_type VARCHAR(10) NOT NULL,
+    code VARCHAR(20),
+    available BOOLEAN NOT NULL DEFAULT TRUE,
+    creation_date TIMESTAMP NOT NULL DEFAULT NOW(),
+    CHECK (game_type IN ('private', 'public'))       -- Ensures type is either 'private' or 'public'
+);
+
+CREATE TABLE game_scores (
+    game_id CHAR(36),
+    round INT,
+    user_id CHAR(36),
+    user_score INT,
+    PRIMARY KEY (game_id, round, user_id), -- Composite primary key
+    FOREIGN KEY (game_id) REFERENCES games(game_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+)
+
+
 -- TRIGGERS
+
+DROP TRIGGER IF EXISTS after_user_insert;
 
 DELIMITER $$
 

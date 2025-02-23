@@ -23,13 +23,6 @@ export class Users {
         return user[0];
     }
 
-    static async createNewUser(username, password) {
-        await pool.query(
-            `INSERT INTO users (user_name, user_password)
-            VALUES (?, ?)
-            `, [username, password]);
-    }
-
     static async createNewUser(firstName, lastName, email, username, password) {
         try {
             // Attempt to insert the new user into the database
@@ -49,16 +42,15 @@ export class Users {
             return 500; // Return 500 for internal server error
         }
     }
-}
 
-export class UserStats {
-    static async getUserStats(user_id) {
-        const [userStats] = await pool.query(
+    static async getUserProfile(user_id) {
+        const [user] = await pool.query(
             `SELECT *
-            FROM userStats
-            WHERE user_id = ?
+            FROM users u
+            JOIN userStats us
+            USING(user_id)
+            WHERE u.user_id = ?
             `, [user_id]);
-
-        return userStats[0];
+        return user[0];
     }
 }

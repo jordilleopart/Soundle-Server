@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { Users, UserStats } from '../database/database.js';    // used to access Users table from our MySQL database
+import { Users } from '../database/database.js';    // used to access Users table from our MySQL database
 
 const profileRouter = Router();
 
@@ -13,20 +13,19 @@ profileRouter.get("/:user_name", async (req, res) => {
     if (!user) return res.status(404).send(JSON.stringify({ message: "User not found." }));
 
     // retrieve stats of given user
-    const userStats = await UserStats.getUserStats(user.user_id);
+    const userProfile = await Users.getUserProfile(user.user_id);
 
-    return res.send({ user: user, userStats: userStats });
+    return res.send(JSON.stringify(userProfile));
 });
 
 // access my own profile
 profileRouter.get("/", async (req, res) => {
-    // retrieve user (if any) from database
-    const user = await Users.checkUsernameExists(req.user.user_name);
+    // retrieve user profile from database
+    const userProfile = await Users.getUserProfile(req.user.user_id);
 
-    // retrieve stats of given user
-    const userStats = await UserStats.getUserStats(user.user_id);
+    console.log(userProfile);
 
-    return res.send({ user: user, userStats: userStats });
+    return res.send(JSON.stringify(userProfile));
 });
 
 export default profileRouter;
