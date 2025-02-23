@@ -33,7 +33,8 @@
     "express-ws": "^5.0.2",
     "jsonwebtoken": "9.0.2",
     "mysql2": "3.12.0",
-    "soundle-server": "file:"
+    "soundle-server": "file:",
+    "uuid": "11.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

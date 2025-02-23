@@ -2,8 +2,10 @@ import 'dotenv/config';     // important to define it like this and at the top f
 import cors from 'cors';
 import express from 'express';
 import ExpressWs from 'express-ws';
+import gameRouter from './routes/game.js';
 import loginRouter from './routes/login.js';
 import signupRouter from './routes/signup.js';
+import logoutRouter from './routes/logout.js';
 import profileRouter from './routes/profile.js';
 import authenticateJWTToken from './middlewares/authenticateJWTToken.js';
 
@@ -31,6 +33,8 @@ app.use("/login", loginRouter);
 app.use("/signup", signupRouter);
 app.use(authenticateJWTToken);  // used to authenticate JWT token in every route except login and signup
 app.use("/profile", profileRouter);
+app.use("/game", gameRouter);
+app.use("/logout", logoutRouter);
 
 // Start listening
 app.listen(PORT, () => {

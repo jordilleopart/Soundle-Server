@@ -36,30 +36,32 @@ CREATE TABLE userStats (
 );
 
 CREATE TABLE playlist(
-    -- playlist_id BINARY(16) PRIMARY KEY DEFAULT(UUID_TO_BIN(UUID()) check if necessary
-    playlist_name VARCHAR(255) PRIMARY KEY NOT NULL,
+    playlist_id CHAR(36) PRIMARY KEY DEFAULT(UUID()),
+    playlist_name VARCHAR(255) NOT NULL,
     playlist_description VARCHAR(255),
     playlist_creator CHAR(36) NOT NULL,
 	FOREIGN KEY (playlist_creator) REFERENCES users(user_id)
 );
 
 CREATE TABLE playlistTrack(
-    playlist_name VARCHAR(255),
-    FOREIGN KEY (playlist_name) REFERENCES playlist(playlist_name),
+    playlist_id CHAR(36),
+    FOREIGN KEY (playlist_id) REFERENCES playlist(playlist_id),
     track_id VARCHAR(255),
     FOREIGN KEY (track_id) REFERENCES track(track_id)
 );
 
 CREATE TABLE games (
-    game_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    game_id CHAR(36) PRIMARY KEY,
+    game_creator CHAR(36) DEFAULT NULL,
     num_players INT NOT NULL DEFAULT 6,
     rounds INT NOT NULL DEFAULT 5,
     playlist VARCHAR(255) NOT NULL,
-    game_type VARCHAR(10) NOT NULL,
-    code VARCHAR(20),
+    game_type VARCHAR(10) NOT NULL DEFAULT 'public',
+    code CHAR(6) DEFAULT NULL,
     available BOOLEAN NOT NULL DEFAULT TRUE,
     creation_date TIMESTAMP NOT NULL DEFAULT NOW(),
-    CHECK (game_type IN ('private', 'public'))       -- Ensures type is either 'private' or 'public'
+    CHECK (game_type IN ('private', 'public')),       -- Ensures type is either 'private' or 'public'
+    FOREIGN KEY (game_creator) REFERENCES users(user_id)
 );
 
 CREATE TABLE game_scores (
@@ -85,6 +87,22 @@ FOR EACH ROW
 BEGIN
     INSERT INTO userStats (user_id, total_games, total_wins)
     VALUES (NEW.user_id, 0, 0);
+END $$
+
+DELIMITER ;
+
+DROP TRIGGER IF EXISTS before_insert_game;
+
+DELIMITER $$
+
+CREATE TRIGGER before_insert_game
+BEFORE INSERT ON games
+FOR EACH ROW
+BEGIN
+    -- If the game type is private, generate a 6-character uppercase code
+    IF NEW.game_type = 'private' THEN
+        SET NEW.code = UPPER(SUBSTRING(UUID(), 1, 6));  -- Extract 6 characters from UUID and convert to uppercase
+    END IF;
 END $$
 
 DELIMITER ;
