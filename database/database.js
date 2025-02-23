@@ -76,16 +76,16 @@ export class Games {
         return gameId;
     }
 
-    static async newCustomGame(game_creator, num_players, rounds, playlist, game_type) {
+    static async newCustomGame(game_creator, max_players, rounds, playlist, game_type) {
         // Create an uuid for the game
         const gameId = uuidv4();
 
         // Insert the new game into the database
         try {
             await pool.query(
-                `INSERT INTO games (game_id, game_creator, num_players, rounds, playlist, game_type)
+                `INSERT INTO games (game_id, game_creator, max_players, rounds, playlist, game_type)
                 VALUES (?, ?, ?, ?, ?, ?)
-                `, [gameId, game_creator, num_players, rounds, playlist, game_type]);
+                `, [gameId, game_creator, max_players, rounds, playlist, game_type]);
         } catch (err) {
             console.error(err);
             return 500; // Return 500 for internal server error (uuid is repeated)
@@ -142,7 +142,7 @@ export class Games {
         `;
     
         try {
-            const [games] = await pool.query(query, [sortBy, pageSize, offset]);
+            const [games] = await pool.query(query, [filterValue, pageSize, offset]);
 
             // Query the total count of available games for pagination metadata
             const [[totalCountRow]] = await pool.query(
@@ -164,6 +164,97 @@ export class Games {
         } catch(err) {
             console.error(err);
             return 500; // Return 500 for internal server error
+        }
+    };
+
+    static async addPlayerToGame(gameId) {
+        const connection = await pool.getConnection();
+
+        try {
+            // Start a transaction
+            await connection.beginTransaction();
+        
+            // Lock the row and check num_players and max_players
+            const [rows] = await connection.query(`
+                SELECT num_players, max_players
+                FROM games
+                WHERE game_id = ?
+                FOR UPDATE;
+            `, [gameId]);
+        
+            const game = rows[0];
+        
+            // Check if num_players < max_players before updating
+            if (game.num_players < game.max_players) {
+                // Proceed to update num_players if condition is met
+                const [updateResults] = await connection.query(`
+                UPDATE games
+                SET num_players = num_players + 1
+                WHERE game_id = ?
+                `, [gameId]);
+        
+                // Commit the transaction
+                await connection.commit();
+                // Release the connection back to the pool
+                connection.release();
+
+                if (updateResults.affectedRows > 0) return 200;
+                else return 500; // Return 500 for internal server error
+            } else {
+                await connection.rollback();
+                // Release the connection back to the pool
+                connection.release();
+
+                return 422; // Return 422 for Unprocessable Entity
+            }
+        } catch (err) {
+            await connection.rollback();
+            // Release the connection back to the pool
+            connection.release();
+            return 500; // Return 500 for internal server error
+        }
+    };
+
+    static async removePlayerFromGame(gameId) {
+        const connection = await pool.getConnection();
+    
+        try {
+            // Start a transaction
+            await connection.beginTransaction();
+    
+            // Lock the row and check num_players and max_players
+            const [rows] = await connection.query(`
+                SELECT num_players, max_players, available
+                FROM games
+                WHERE game_id = ?
+                FOR UPDATE;
+            `, [gameId]);
+    
+            const game = rows[0];
+    
+            // Proceed to update num_players
+            const newNumPlayers = game.num_players - 1;
+    
+            // If num_players becomes 0, also set available to false
+            let updateQuery = `
+                UPDATE games
+                SET num_players = ?, available = ?
+                WHERE game_id = ?
+            `;
+            const updateValues = newNumPlayers === 0 ? [newNumPlayers, false, gameId] : [newNumPlayers, game.available, gameId];
+    
+            const [updateResults] = await connection.query(updateQuery, updateValues);
+    
+            // Commit the transaction
+            await connection.commit();
+            connection.release();
+    
+            if (updateResults.affectedRows > 0) return 200;  // 200 OK
+            else return 500;  // 500 Internal Server Error if update failed
+        } catch (err) {
+            await connection.rollback();
+            connection.release();
+            return 500;  // 500 Internal Server Error for unexpected error
         }
     };
 }

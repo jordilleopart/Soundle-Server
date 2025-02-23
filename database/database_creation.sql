@@ -53,7 +53,8 @@ CREATE TABLE playlistTrack(
 CREATE TABLE games (
     game_id CHAR(36) PRIMARY KEY,
     game_creator CHAR(36) DEFAULT NULL,
-    num_players INT NOT NULL DEFAULT 6,
+    num_players INT NOT NULL DEFAULT 0,
+    max_players INT NOT NULL DEFAULT 6,
     rounds INT NOT NULL DEFAULT 5,
     playlist VARCHAR(255) NOT NULL,
     game_type VARCHAR(10) NOT NULL DEFAULT 'public',

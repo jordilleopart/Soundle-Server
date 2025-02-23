@@ -23,8 +23,6 @@ profileRouter.get("/", async (req, res) => {
     // retrieve user profile from database
     const userProfile = await Users.getUserProfile(req.user.user_id);
 
-    console.log(userProfile);
-
     return res.send(JSON.stringify(userProfile));
 });
 
