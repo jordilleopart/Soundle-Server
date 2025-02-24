@@ -5,7 +5,7 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js",
     "start": "node server.js"
   },
   "repository": {
@@ -27,12 +27,16 @@
   },
   "homepage": "https://github.com/ECV2025-Soundle/Soundle-Server#readme",
   "dependencies": {
-    "cors": "^2.8.5",
+    "cors": "2.8.5",
     "dotenv": "16.4.7",
     "express": "4.21.2",
-    "jose": "5.10.0",
+    "express-ws": "^5.0.2",
+    "jsonwebtoken": "9.0.2",
     "mysql2": "3.12.0",
-    "node-mysql-wrapper": "^2.4.0",
-    "soundle-server": "file:"
+    "soundle-server": "file:",
+    "uuid": "11.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }

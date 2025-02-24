@@ -4,4 +4,4 @@ Server side of the Soundle web application developed for the ECV course at UPF, 
 
 DE MOMENTO HAY QUE EJECUTAR MANUALMENTE EL CÓDIGO SQL PARA INICIALIZAR LA DATABASE.
 
-To run server do npm run server.js
+To run server in dev mode do npm run dev, to run it normally, do npm run start
