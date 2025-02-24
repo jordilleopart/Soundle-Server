@@ -4,10 +4,18 @@ import loginRouter from './routes/login.js';
 import signupRouter from './routes/signup.js';
 import trackInfoRouter from './routes/track_info.js';
 import trackAudioRouter from './routes/track_audio.js';
+import cors from 'cors';  // <--- Importa cors
 
 // initialize server
 const PORT = process.env.PORT || 3000;
 const app = express();
+
+// Habilitar CORS para todas las solicitudes
+app.use(cors({
+    //origin: ['http://127.0.0.1:5500', 'https://jordilleopart.github.io'], // Permite solo este origen
+    methods: 'GET, POST, PUT, DELETE',
+    allowedHeaders: 'Content-Type, Authorization'
+}));
 
 // middleware that executes for all requests, parsing json encoded bodies
 app.use(express.json());

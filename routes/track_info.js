@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import axios from 'axios'; // dont used anymore -> unistall axios 
+//import axios from 'axios'; // dont used anymore -> unistall axios 
 import dotenv from 'dotenv';
 import { Track } from '../database/database.js'; 
 
@@ -17,15 +17,23 @@ const getSpotifyToken = async () => {
     const authString = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
     try {
-        const response = await axios.post('https://accounts.spotify.com/api/token', 'grant_type=client_credentials', {
+        const response = await fetch('https://accounts.spotify.com/api/token', {
+            method: 'POST',
             headers: {
                 'Authorization': `Basic ${authString}`,
                 'Content-Type': 'application/x-www-form-urlencoded'
-            }
+            },
+            body: 'grant_type=client_credentials'
         });
 
-        spotifyToken = response.data.access_token;
-        tokenExpirationTime = Date.now() + response.data.expires_in * 1000; // Convert seconds to milliseconds
+        if (!response.ok) {
+            throw new Error('Failed to fetch Spotify token');
+        }
+
+        const data = await response.json();
+
+        spotifyToken = data.access_token;
+        tokenExpirationTime = Date.now() + data.expires_in * 1000; // Convert seconds to milliseconds
     } catch (error) {
         console.error('Failed to fetch Spotify token', error);
         throw new Error('Failed to fetch Spotify token');
@@ -126,7 +134,7 @@ trackInfoRouter.post("/", async (req, res) => {
     const { id, name, artist, release_date, album_cover_url, preview_url } = req.body;
 
     // if any is missing send "400 - Bad Request"
-    if (!id || !name || !artist || !release_date || !album_cover_url || !preview_url) {
+    if (!id || !name || !artist || !release_date || !album_cover_url ) {
         return res.status(400).send({ error: 'Missing required information' });
     }
 
