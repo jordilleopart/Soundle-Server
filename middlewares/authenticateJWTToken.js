@@ -2,8 +2,8 @@ import jwt from 'jsonwebtoken';
 
 function authenticateJWTToken(req, res, next) {
     // Retrieve JWT Token from the header
-    const authHeader = req.headers['authorization']
-    const token = authHeader && authHeader.split(' ')[1]
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
 
     // if no token, send "401 - Unauthorized"
     if (!token) return res.status(401).send(JSON.stringify({ message: "Log in to see the content." }));

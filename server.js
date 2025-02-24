@@ -2,18 +2,15 @@ import 'dotenv/config';     // important to define it like this and at the top f
 import cors from 'cors';
 import express from 'express';
 import ExpressWs from 'express-ws';
-import gameRouter from './routes/game.js';
 import loginRouter from './routes/login.js';
 import signupRouter from './routes/signup.js';
 import logoutRouter from './routes/logout.js';
 import profileRouter from './routes/profile.js';
-import authenticateJWTToken from './middlewares/authenticateJWTToken.js';
 
 // initialize server
 const PORT = process.env.PORT || 3000;
 // creates both an HTTP and a WebSocket server
-const app = express()
-const wsApp = ExpressWs(app);
+var app = ExpressWs(express()).app;
 
 // Define CORS options
 const corsOptions = {
@@ -21,7 +18,7 @@ const corsOptions = {
 	methods: ['GET', 'POST'],                           // Allow only GET and POST requests
 	allowedHeaders: ['Authorization', 'Content-Type'],  // Allow Authorization and Content-Type headers
 };
-  
+
 // Use CORS middleware with the specified options
 app.use(cors(corsOptions));
 
@@ -31,12 +28,11 @@ app.use(express.json());
 // import all subsections (routers) of the app
 app.use("/login", loginRouter);
 app.use("/signup", signupRouter);
-app.use(authenticateJWTToken);  // used to authenticate JWT token in every route except login and signup
 app.use("/profile", profileRouter);
-app.use("/game", gameRouter);
+app.use("/game", (await import('./routes/game.js')).default);
 app.use("/logout", logoutRouter);
 
 // Start listening
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-})
+});
