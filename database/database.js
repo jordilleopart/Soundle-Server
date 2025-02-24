@@ -258,3 +258,31 @@ export class Games {
         }
     };
 }
+
+export class Track {
+    static async createNewTrack(id, name, artist, release_date, album_cover_url, preview_url) {
+        await pool.query(
+            `INSERT INTO track (track_id, track_name, track_artist, track_release_date, track_cover_url, track_preview_url)
+            VALUES (?, ?, ?, ?, ?, ?)
+            `, [id, name, artist, release_date, album_cover_url, preview_url]);
+    }
+
+    static async checkTrackExists(id) {
+        const [track] = await pool.query(
+            `SELECT *
+            FROM track
+            WHERE track_id = ?
+            `, [id]);
+        return track[0];
+    }
+  
+    static async getRandomTrack() {
+        const [track] = await pool.query(
+            `SELECT track_id, track_name, track_artist, track_release_date, track_cover_url, track_preview_url
+            FROM track
+            ORDER BY RAND()
+            LIMIT 1
+            `);
+        return track[0]; // Devuelve el primer (y único) resultado
+    }
+}

@@ -8,6 +8,9 @@ import logoutRouter from './routes/logout.js';
 import profileRouter from './routes/profile.js';
 import authenticateJWTToken from './middlewares/authenticateJWTToken.js';
 
+import trackInfoRouter from './routes/track_info.js';
+import trackAudioRouter from './routes/track_audio.js';
+
 // initialize server
 const PORT = process.env.PORT || 3000;
 // creates both an HTTP and a WebSocket server
@@ -23,6 +26,13 @@ const corsOptions = {
 // Use CORS middleware with the specified options
 app.use(cors(corsOptions));
 
+// Habilitar CORS para todas las solicitudes
+app.use(cors({
+    //origin: ['http://127.0.0.1:5500', 'https://jordilleopart.github.io'], // Permite solo este origen
+    methods: 'GET, POST, PUT, DELETE',
+    allowedHeaders: 'Content-Type, Authorization'
+}));
+
 // middleware that executes for all requests, parsing json encoded bodies
 app.use(express.json());
 
@@ -34,6 +44,9 @@ app.use("/game", (await import('./routes/game.js')).default);
 app.use(authenticateJWTToken);
 app.use("/profile", profileRouter);
 app.use("/logout", logoutRouter);
+
+app.use("/track", trackInfoRouter);
+app.use("/audio", trackAudioRouter);
 
 // Start listening
 app.listen(PORT, () => {

@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../Soundle-Client"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "Soundle-Client"
+	}
+}
