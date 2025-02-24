@@ -6,6 +6,7 @@ import loginRouter from './routes/login.js';
 import signupRouter from './routes/signup.js';
 import logoutRouter from './routes/logout.js';
 import profileRouter from './routes/profile.js';
+import authenticateJWTToken from './middlewares/authenticateJWTToken.js';
 
 // initialize server
 const PORT = process.env.PORT || 3000;
@@ -28,8 +29,10 @@ app.use(express.json());
 // import all subsections (routers) of the app
 app.use("/login", loginRouter);
 app.use("/signup", signupRouter);
-app.use("/profile", profileRouter);
 app.use("/game", (await import('./routes/game.js')).default);
+
+app.use(authenticateJWTToken);
+app.use("/profile", profileRouter);
 app.use("/logout", logoutRouter);
 
 // Start listening

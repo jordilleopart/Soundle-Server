@@ -40,7 +40,7 @@ gameRouter.post("/join/:game_id", authenticateJWTToken, async (req, res) => {
     // if the game was successfully joined, return the game_id
     switch (status) {
         case 200:
-            return res.send({game_id});
+            return res.send(JSON.stringify({gameID: game_id}));
         case 422:
             return res.status(422).send(JSON.stringify({ message: "Unprocessable Entity. Game is full." }));
         case 500:
@@ -58,7 +58,7 @@ gameRouter.post("/leave/:game_id", authenticateJWTToken, async (req, res) => {
     // if the game was successfully joined, return the game_id
     switch (status) {
         case 200:
-            return res.send({game_id});
+            return res.send(JSON.stringify({gameID: game_id}));
         case 500:
             return res.status(500).send(JSON.stringify({ message: "Internal Server Error." }));
     };
