@@ -18,20 +18,14 @@ var app = ExpressWs(express()).app;
 
 // Define CORS options
 const corsOptions = {
-	origin: '*',                                        // Allow any origin
-	methods: ['GET', 'POST'],                           // Allow only GET and POST requests
-	allowedHeaders: ['Authorization', 'Content-Type'],  // Allow Authorization and Content-Type headers
+    origin: 'http://127.0.0.1:5500',  // Allow your frontend's origin
+    methods: ['GET', 'POST', 'OPTIONS'],  // Allow only GET and POST requests
+    allowedHeaders: ['Authorization', 'Content-Type'],  // Allow Authorization and Content-Type headers
+    exposedHeaders: ['Authorization'],  // Expose the Authorization header to the client
 };
 
 // Use CORS middleware with the specified options
 app.use(cors(corsOptions));
-
-// Habilitar CORS para todas las solicitudes
-app.use(cors({
-    //origin: ['http://127.0.0.1:5500', 'https://jordilleopart.github.io'], // Permite solo este origen
-    methods: 'GET, POST, PUT, DELETE',
-    allowedHeaders: 'Content-Type, Authorization'
-}));
 
 // middleware that executes for all requests, parsing json encoded bodies
 app.use(express.json());
