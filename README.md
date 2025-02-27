@@ -251,7 +251,7 @@ Depending on how you have configured your Apache and your user permissions for t
 However, the procedure does not change, it is the same command as above with the appropiate repository and `sudo` before if needed.
 
 > [!IMPORTANT]
-> Do not forget that in the server folder you need to run the command below for installing the dependencies as explained in [Installation of the node modules].(#installation-of-node-modules)
+> Do not forget that in the server folder you need to run the command below for installing the dependencies as explained in [Installation of the node modules](#installation-of-node-modules).
 
 ```bash
 npm install
