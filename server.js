@@ -2,6 +2,7 @@ import 'dotenv/config';     // important to define it like this and at the top f
 import cors from 'cors';
 import express from 'express';
 import ExpressWs from 'express-ws';
+import {generalLogger} from './logger.js'; // Ensure logger is imported first
 import loginRouter from './routes/login.js';
 import signupRouter from './routes/signup.js';
 import logoutRouter from './routes/logout.js';
@@ -48,5 +49,5 @@ app.use("/audio", trackAudioRouter);
 
 // Start listening
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    generalLogger.info(`Server running on port ${PORT}`);
 });
