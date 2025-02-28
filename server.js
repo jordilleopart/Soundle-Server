@@ -6,10 +6,14 @@ import loginRouter from './routes/login.js';
 import signupRouter from './routes/signup.js';
 import logoutRouter from './routes/logout.js';
 import profileRouter from './routes/profile.js';
+import { parseArguments } from './argparser.js'; // Import the argument parser
 import authenticateJWTToken from './middlewares/authenticateJWTToken.js';
 
 import trackInfoRouter from './routes/track_info.js';
 import trackAudioRouter from './routes/track_audio.js';
+
+// Parse the command-line arguments and handle the database action
+await parseArguments();
 
 // initialize server
 const PORT = process.env.PORT || 3000;

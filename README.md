@@ -10,12 +10,72 @@ The document is thought to distinguish 2 different deployments:
 - [Running locally](#running-locally)
 - [Running on the cloud](#running-on-the-cloud)
 
-However, there are some steps that are common:
-
-- [Installation of node modules](#installation-of-node-modules)
-- [Required environment variables](#required-environment-variables)
+However, the usage to start the server is the same, and is explained in [Usage](#usage).
 
 Please follow the corresponding guide carefully and in order, to ensure the installations and configurations are done correctly.
+
+# Usage
+
+To proceed with the usage of the server, you need to have previously set up everything.
+
+> [!IMPORTANT]
+> If you have not followed the instructions to setup the server either locally or on the cloud, follow instructions of [Running locally](#running-locally) or [Running on the cloud](#running-on-the-cloud), respectively.
+
+Having saig that, the server has the following options to start it:
+
+- Development: used while still developing features for the server, as it automatically reloads the server when you change a file.
+
+```bash
+npm run dev
+```
+
+- Foreground/session-bound: used to start the server normally, without closing the session of our CLI. If we close session, program stops.
+
+```bash
+npm run start
+```
+
+- Background: used to start the server and mantain it active 24/7 even if we close the session, as long as the machine that hosts it does not shut down. Perfect for deployment on the cloud.
+
+```bash
+# To start the server
+npm run pm2-start
+# To stop its execution
+npm run pm2-stop
+# To restart the server
+npm run pm2-restart
+# To stop and delete server
+npm run pm2-delete
+```
+
+The server allows to have input parameters, see section [Parameters](#parameters)
+
+## Parameters
+
+To use parameters when calling the server, you need to do it as follows:
+
+```bash
+npm run <script> -- -- <parameter> <option>
+```
+
+An example could be:
+
+```bash
+npm run start -- -- --db reset
+```
+
+### Database management
+
+| Option                  | Description                                                                 |
+|-------------------------|-----------------------------------------------------------------------------|
+| `--db/--database reset`            | Deletes current database and initializes an empty one for the server.           |
+| `--db/--database export`           | Exports current database to a file and then exit the process.            |
+| `--db/--database import`           | Imports database from a file and starts the server.        |
+| `--db/--database default` (default)| If no database, initializes an empty one. If database, does nothing.                     |
+
+> [!IMPORTANT]
+> To use the database functionality, you need to correctly set up the environment variables `MYSQL_INIT_FILE`, `MYSQL_EXPORT_FILE` and `MYSQL_PATH`, all explained in [Required environment variables](#required-environment-variables).
+
 
 # Running locally
 
@@ -27,23 +87,7 @@ If you have all node modules installed, the last thing you need to do is to set 
 
 To know which environment variables you need for this server, go to [Required environment variables](#required-environment-variables).
 
-Lastly, if you have completed all above, you can succesfully run the server locally. For this, there are 2 commands.
-
-The command below executes the server, and if you make any changes to its code while it's active, it will automatically restart the server. This is perfect to use in development.
-
-```bash
-npm run dev
-```
-
-This command below just executes the server. This is used in "production", once you have a final/stable version of your server, and you don't plan to introduce more changes.
-
-```bash
-npm run start
-```
-
-> [!WARNING]
-> With the above 2 commands, if you close the terminal, the server will stop executing.
-> If you want the server to be up and running 24/7, you can use tools such as [PM2](https://pm2.keymetrics.io/) as explained later in [Running on the cloud](#running-on-the-cloud).
+Lastly, if you have completed all above, you can succesfully run the server locally. For this, proceed to the [Usage](#usage) section.
 
 ## Installation of node modules
 
@@ -70,6 +114,14 @@ Here is a list of the used variables and their description:
 - PASSWORD_SALT: salt string used for encrypting user passwords in our database.
 - JWT_SECRET_TOKEN: secret token used to generate the JWT access tokens our server uses to authenticate/authorize users.
 
+For database management:
+- MYSQL_INIT_FILE: Relative path from root folder to where the database schema is located. It should be `'./database/database_structure.sql'` unless you move it.
+- MYSQL_EXPORT_FILE: Relative path from root folder to where the database will be exported. Feel free to custom it.
+- MYSQL_PATH: Absolute path to your system's installation of MySQL server. Has to be inside '', e.g. 'path/to/mysql'. If you have added MySQL server to your `$PATH` variable in your OS, you can leave it undeclared.
+
+> [!WARNING]
+> If you do not set the `MYSQL_PATH` env variable, and you do not have MySQL server added into your `$PATH`, program will fail.
+
 > [!WARNING]
 > Remember to modify your environment variables of the `.env` file when changing deployment from local to the cloud, as the URLs may change.
 
@@ -84,7 +136,7 @@ If we have finished installing and configuring the required softwares, we can no
 > [!IMPORTANT]
 > Do not forget to check that your .env file is correct as explained in [Required environment variables](#required-environment-variables)
 
-Lastly, we can run the server in the same way as before, as seen in [Running locally](#running-locally), or, as we are in a VM that is technically a "server" that will be up and running 24/7, we can use more advanced tools such as PM2.
+Lastly, we can run the server in all the ways described in [Usage](#usage). However, as we are in a VM that will be up and running 24/7, we will probably decide to use PM2. For this, we first need to install it.
 
 ### Installing and using PM2
 

@@ -6,7 +6,11 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "pm2-start": "pm2 start server.js --name soundle-server",
+    "pm2-stop": "pm2 stop soundle-server",
+    "pm2-restart": "pm2 restart soundle-server",
+    "pm2-delete": "pm2 delete soundle-server"
   },
   "repository": {
     "type": "git",
@@ -27,6 +31,7 @@
   },
   "homepage": "https://github.com/ECV2025-Soundle/Soundle-Server#readme",
   "dependencies": {
+    "commander": "13.1.0",
     "cors": "2.8.5",
     "dotenv": "16.4.7",
     "express": "4.21.2",
