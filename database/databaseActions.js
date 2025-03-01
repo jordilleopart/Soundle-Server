@@ -92,8 +92,6 @@ export const deleteDatabase = async () => {
     }
 };
 
-// mirar pq se queja al borrar cuando no existe la database
-
 // Close the Pool Connection (Gracefully shut down the connection pool)
 export const closePool = async () => {
     try {
