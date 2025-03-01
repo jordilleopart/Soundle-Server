@@ -1,5 +1,7 @@
-import 'dotenv/config';     // important to define it like this and at the top for all env variables to be initialized
+import 'dotenv/config';  // important to define it like this and at the top for all env variables to be initialized
+import fs from 'fs';
 import cors from 'cors';
+import https from 'https';
 import express from 'express';
 import ExpressWs from 'express-ws';
 import { generalLogger } from './logger.js'; // Ensure logger is imported first
@@ -18,7 +20,14 @@ await parseArguments();
 
 // initialize server
 const PORT = process.env.PORT || 3000;
-// creates both an HTTP and a WebSocket server
+
+// Path to your SSL certificate files (you need to have these in your project)
+const sslOptions = {
+    key: fs.readFileSync(process.env.SSL_PRIVATE_KEY),  // Replace with your private key
+    cert: fs.readFileSync(process.env.SSL_CERTIFICATE),  // Replace with your certificate
+};
+
+// Creates both an HTTPS and a WebSocket server
 var app = ExpressWs(express()).app;
 
 // Define CORS options
@@ -47,7 +56,7 @@ app.use("/logout", logoutRouter);
 app.use("/track", trackInfoRouter);
 app.use("/audio", trackAudioRouter);
 
-// Start listening
-app.listen(PORT, () => {
-    generalLogger.info(`Server running on port ${PORT}`);
+// Start listening over HTTPS
+https.createServer(sslOptions, app).listen(PORT, () => {
+    generalLogger.info(`Server running over HTTPS on port ${PORT}`);
 });
