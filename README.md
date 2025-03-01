@@ -56,6 +56,8 @@ To use parameters when calling the server, you need to do it as follows:
 
 ```bash
 npm run <script> -- -- <parameter> <option>
+# Or try this way if it gives `error: too many arguments. Expected 0 arguments but got 1.`
+npm run <script> -- <parameter> <option>
 ```
 
 An example could be:
