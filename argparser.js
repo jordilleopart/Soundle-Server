@@ -32,12 +32,12 @@ export const parseArguments = async () => {
                     break;
 
                 case 'export':
+                    await initializeDatabase(process.env.MYSQL_INIT_FILE); // Wait for initialization to finish
                     await exportDatabase(process.env.MYSQL_EXPORT_FILE); // Wait for export to finish
                     process.exit(0); // Exit the process after export
 
                 case 'import':
                     await deleteDatabase(); // Wait for delete to finish
-                    await initializeDatabase(process.env.MYSQL_INIT_FILE); // Wait for initialization to finish
                     await importDatabase(process.env.MYSQL_EXPORT_FILE); // Wait for import to finish
                     break;
 

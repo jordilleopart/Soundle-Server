@@ -10,7 +10,6 @@ const dbConfig = {
     user: process.env.MYSQL_USER,
     port: process.env.MYSQL_PORT,
     password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DB,
     multipleStatements: true, // Enable multiple SQL statements per query
 };
 
@@ -49,7 +48,10 @@ export const initializeDatabase = async (sqlFilePath) => {
 const execPromise = promisify(exec);
 
 export const exportDatabase = async (outputFilePath) => {
-    try {  
+    try {
+        // Ensure the database exists before exporting
+        await pool.query(`USE ${process.env.MYSQL_DB}`);
+
         const command = `${getCommandPath('mysqldump')} -u${process.env.MYSQL_USER} -p${process.env.MYSQL_PASSWORD} ${process.env.MYSQL_DB} > "${outputFilePath}"`;
         
         // Run the mysqldump command
@@ -64,6 +66,10 @@ export const exportDatabase = async (outputFilePath) => {
 // Import Database (Using mysql)
 export const importDatabase = async (inputFilePath) => {
     try {
+        // Ensure the database exists before importing
+        await pool.query(`CREATE DATABASE IF NOT EXISTS ${process.env.MYSQL_DB}`);
+        await pool.query(`USE ${process.env.MYSQL_DB}`);  // Use the newly created or existing database
+
         const command = `${getCommandPath('mysql')} -u${process.env.MYSQL_USER} -p${process.env.MYSQL_PASSWORD} ${process.env.MYSQL_DB} < "${inputFilePath}"`;
 
         // Run the mysql command to import the database
@@ -78,13 +84,15 @@ export const importDatabase = async (inputFilePath) => {
 // Delete the Database
 export const deleteDatabase = async () => {
     try {
-        const query = `DROP DATABASE IF EXISTS ${dbConfig.database}`;
+        const query = `DROP DATABASE IF EXISTS ${dbConfig.database};`;
         await pool.query(query);
         console.log('Database deleted successfully');
     } catch (err) {
         console.error('Error deleting the database:', err);
     }
 };
+
+// mirar pq se queja al borrar cuando no existe la database
 
 // Close the Pool Connection (Gracefully shut down the connection pool)
 export const closePool = async () => {
