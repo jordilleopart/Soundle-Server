@@ -18,16 +18,16 @@ gameRouter.post("/create", authenticateJWTToken, async (req, res) => {
     }
 
     // create a new custom game
-    const gameId = await Games.newCustomGame(req.user.user_id, maxPlayers, rounds, playlist, gameType);
+    const game_id = await Games.newCustomGame(req.user.user_id, maxPlayers, rounds, playlist, gameType);
 
-    return res.send({gameId});
+    return res.send(JSON.stringify({gameId: game_id}));
 });
 
 // see available games
 gameRouter.get("/available", authenticateJWTToken, async (req, res) => {
     // return all games that are available (in a paginated manner)
     const games = await Games.sortedAvailableGames();
-    return res.send(games);
+    return res.send(JSON.stringify(games));
 });
 
 // join a game
@@ -40,7 +40,7 @@ gameRouter.post("/join/:game_id", authenticateJWTToken, async (req, res) => {
     // if the game was successfully joined, return the game_id
     switch (status) {
         case 200:
-            return res.send(JSON.stringify({gameID: game_id}));
+            return res.send(JSON.stringify({gameId: game_id}));
         case 422:
             return res.status(422).send(JSON.stringify({ message: "Unprocessable Entity. Game is full." }));
         case 500:
@@ -58,7 +58,7 @@ gameRouter.post("/leave/:game_id", authenticateJWTToken, async (req, res) => {
     // if the game was successfully joined, return the game_id
     switch (status) {
         case 200:
-            return res.send(JSON.stringify({gameID: game_id}));
+            return res.send(JSON.stringify({gameId: game_id}));
         case 500:
             return res.status(500).send(JSON.stringify({ message: "Internal Server Error." }));
     };
