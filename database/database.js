@@ -58,6 +58,15 @@ export class Users {
 }
 
 export class Games {
+    static async getGameByGameId(gameId) {
+        const [game] = await pool.query(
+            `SELECT *
+            FROM games
+            WHERE game_id = ?
+            `, [gameId]);
+        return game[0];
+    };
+
     static async systemDefaultGame(playlist) {
         // Create an uuid for the game
         const gameId = uuidv4();

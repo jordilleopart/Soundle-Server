@@ -20,7 +20,10 @@ gameRouter.post("/create", authenticateJWTToken, async (req, res) => {
     // create a new custom game
     const game_id = await Games.newCustomGame(req.user.user_id, maxPlayers, rounds, playlist, gameType);
 
-    return res.send(JSON.stringify({gameId: game_id}));
+    // also return the code to enter if the game is private
+    const game = await Games.getGameByGameId(game_id);
+
+    return res.send(JSON.stringify({gameId: game_id, code: game.game_type}));
 });
 
 // see available games
@@ -62,6 +65,20 @@ gameRouter.get("/available/:mode", authenticateJWTToken, async (req, res) => {
 // join a game
 gameRouter.post("/join/:game_id", authenticateJWTToken, async (req, res) => {
     const {game_id} = req.params;
+
+    // get game
+    const game = await Games.getGameByGameId(game_id);
+
+    // check if game exists
+    if (!game) return res.status(404).send(JSON.stringify({ message: "Not found. Game does not exist." }));
+
+    // if game is private, check that user has given the code, and that it is correct.
+    if (game.game_type === 'private') {
+        // get code from query param
+        const code = req.query.code;
+        // user input code is not correct
+        if (code !== game.code) return res.status(403).send(JSON.stringify({ message: "Forbidden. Incorrect code." }));
+    }
 
     // join the game
     const status = await Games.addPlayerToGame(game_id);
