@@ -106,12 +106,16 @@ export class Games {
     static async sortedAvailableGames(sortBy = 'creation_date', sortOrder = 'DESC', pageNumber = 1, pageSize = 5) {
         // Calculate the offset for pagination
         const offset = (pageNumber - 1) * pageSize;
-        
+
         const query = `
-            SELECT * FROM games
-            WHERE available = true
+            SELECT g.*, u.user_name 
+            FROM games g
+            JOIN users u 
+            ON g.game_creator = u.user_id
+            WHERE g.available = true
             ORDER BY ?? ${sortOrder}
-            LIMIT ? OFFSET ?;`;
+            LIMIT ? OFFSET ?;
+            `;
 
         try {
             const [games] = await pool.query(query, [sortBy, pageSize, offset]);
@@ -145,10 +149,13 @@ export class Games {
     
         // Construct the SQL query with pagination and filter by creator_id
         const query = `
-            SELECT * FROM games
-            WHERE available = true AND ${filterBy} = ?
+            SELECT g.*, u.user_name 
+            FROM games g
+            JOIN users u 
+            ON g.game_creator = u.user_id
+            WHERE g.available = true AND ${filterBy} = ?
             LIMIT ? OFFSET ?;
-        `;
+            `;
     
         try {
             const [games] = await pool.query(query, [filterValue, pageSize, offset]);
