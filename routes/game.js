@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { query, Router } from 'express';
 import { Games } from '../database/database.js';    // used to access Games table from our MySQL database
 import lobbyManager from '../database/lobbyManager.js';  // used to access LobbyManager singleton instance
 import authenticateJWTToken from '../middlewares/authenticateJWTToken.js';
@@ -24,10 +24,39 @@ gameRouter.post("/create", authenticateJWTToken, async (req, res) => {
 });
 
 // see available games
-gameRouter.get("/available", authenticateJWTToken, async (req, res) => {
-    // return all games that are available (in a paginated manner)
-    const games = await Games.sortedAvailableGames();
-    return res.send(JSON.stringify(games));
+gameRouter.get("/available/:mode", authenticateJWTToken, async (req, res) => {
+    // Type of operation
+    const {mode} = req.params;
+    // Specific values for the operation
+    const queryParams = req.query;
+    // variable to store results (can be structure of games, 500, or undefined)
+    var games = undefined;
+
+    const pageNumber = queryParams.pageNumber || 1;
+    const pageSize = queryParams.pageSize || 5;
+
+    // Manage different operations (sort, filter)
+    if (mode === "sort") {
+
+        const sortBy = queryParams.sortBy;
+        const sortOrder = queryParams.sortOrder;
+
+        games = await Games.sortedAvailableGames(sortBy, sortOrder, pageNumber, pageSize);
+    } else if (mode === "filter") {
+
+        const filterBy = queryParams.filterBy;
+        const filterValue = decodeURIComponent(queryParams.filterValue);
+
+        games = await Games.filteredAvailableGames(filterBy, filterValue, pageNumber, pageSize);
+    } else {
+        return res.status(400).send(JSON.stringify({ message: "Bad Request. Unsupported operation." }));
+    }
+
+    if (games === 500) {
+        return res.status(500).send(JSON.stringify({ message: "Internal Server Error." }));
+    } else {
+        return res.send(JSON.stringify(games));
+    }
 });
 
 // join a game

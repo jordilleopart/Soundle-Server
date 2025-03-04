@@ -36,7 +36,7 @@ class LobbyManager {
         const wss = this.getSocketsInLobby(lobbyId);
 
         wss.forEach(ws => {
-            ws.send(JSON.stringify({ "author": author, "content":content }));  // Sending a message to each WebSocket
+            ws.send(JSON.stringify({ "author": author, "content": content }));  // Sending a message to each WebSocket
         });
     }
 }

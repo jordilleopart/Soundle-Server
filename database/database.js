@@ -94,7 +94,7 @@ export class Games {
         return gameId;
     }
 
-    static async sortedAvailableGames(sortBy = 'creation_date', sortOrder = 'DESC', pageNumber = 1, pageSize = 10) {
+    static async sortedAvailableGames(sortBy = 'creation_date', sortOrder = 'DESC', pageNumber = 1, pageSize = 5) {
         // Calculate the offset for pagination
         const offset = (pageNumber - 1) * pageSize;
         
@@ -130,7 +130,7 @@ export class Games {
         }
     };
 
-    static async filteredAvailableGames(filterBy = 'game_creator', filterValue, pageNumber = 1, pageSize = 10) {
+    static async filteredAvailableGames(filterBy = 'game_creator', filterValue, pageNumber = 1, pageSize = 5) {
         // Calculate the offset for pagination
         const offset = (pageNumber - 1) * pageSize;
     
