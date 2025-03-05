@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import { Router } from 'express';
 //import axios from 'axios'; // dont used anymore -> unistall axios 
 import dotenv from 'dotenv';
@@ -66,7 +68,7 @@ trackInfoRouter.get('/search', ensureSpotifyToken, async (req, res) => {
         const queryParams = new URLSearchParams({
             q: query,
             type: 'track',
-            limit: 5,
+            limit: 1,
             market: 'ES'
         }).toString();
 
@@ -156,10 +158,34 @@ trackInfoRouter.post("/", async (req, res) => {
 });
 
 //
+// Endpoint to get a random track and send its MP3 file
 trackInfoRouter.get('/random', (req, res) => {
     Track.getRandomTrack()
         .then(track => {
-            res.send(track);
+            if (!track) {
+                return res.status(404).send({ error: 'Track not found' });
+            }
+
+            const audioPath = track.track_audio_path; // Assuming track_preview_url is the path to the MP3 file
+            const fullPath = path.resolve(audioPath);
+
+            fs.readFile(fullPath, (err, data) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).send({ error: 'Failed to read audio file' });
+                }
+
+                const base64Audio = data.toString('base64');
+
+                res.send({
+                    track_id: track.track_id,
+                    track_name: track.track_name,
+                    track_artist: track.track_artist,
+                    track_release_date: track.track_release_date,
+                    track_cover_url: track.track_cover_url,
+                    track_audio_path: base64Audio
+                });
+            });
         })
         .catch(error => {
             console.error(error);
