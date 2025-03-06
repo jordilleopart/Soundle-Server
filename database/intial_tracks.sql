@@ -13,7 +13,7 @@ VALUES
 ('6DCZcSspjsKoFjzjrWoCdn', 'Gods Plan', 'Drake', '2018-06-29', 'https://i.scdn.co/image/ab67616d0000b273f907de96b9a4fbc04accc0d5', 'mp3/Drake-GodsPlan.mp3'),
 ('6gBFPUFcJLzWGx4lenP6h2', 'goosebumps', 'Travis Scott', '2016-09-16', 'https://i.scdn.co/image/ab67616d0000b273f54b99bf27cda88f4a7403ce', 'mp3/TravisScott-goosebumpsft.KendrickLamar.mp3'),
 ('722tgOgdIbNe3BEyLnejw4', 'Black Skinhead', 'Kanye West', '2013-06-18', 'https://i.scdn.co/image/ab67616d0000b2731dacfbc31cc873d132958af9', 'mp3/KanyeWest-BLKKKSKKKNHEAD.mp3'),
-('7MXgrcOQAJ5VwSNUL0lDd3', 'Blinding Lights', 'The Weeknd', '2020-12-04', 'https://i.scdn.co/image/ab67616d0000b2734abb0f8259dc9f2feb0dfe18', 'mp3/TheWeeknd-BlindingLights.mp3'),
+('7MXgrcOQAJ5VwSNUL0lDd3', 'Blinding Lights', 'The Weeknd', '2020-12-04', 'https://i.scdn.co/image/ab67616d0000b2738863bc11d2aa12b54f5aeb36', 'mp3/TheWeeknd-BlindingLights.mp3'),
 ('7wBJfHzpfI3032CSD7CE2m', 'STARGAZING', 'Travis Scott', '2018-08-03', 'https://i.scdn.co/image/ab67616d0000b273072e9faef2ef7b6db63834a3', 'mp3/TravisScott-STARGAZING.mp3'),
 ('0M9ydKzuF3oZTfYYPfaGX1', 'Bad and Boujee (feat. Lil Uzi Vert)', 'Migos, Lil Uzi Vert', '2017-01-27', 'https://i.scdn.co/image/ab67616d0000b2736275aeac316378b0dd4f31fd', 'mp3/TravisScott-SICKOMODEft.Drake.mp3'),
 ('7GX5flRQZVHRAGd6B4TmDO', 'XO Tour Llif3', 'Lil Uzi Vert', '2017-08-25', 'https://i.scdn.co/image/ab67616d0000b273aab4824c720639a6a2d7d932', 'mp3/LilUziVert-XOTourLlif3.mp3'),
