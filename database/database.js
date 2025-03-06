@@ -60,9 +60,11 @@ export class Users {
 export class Games {
     static async getGameByGameId(gameId) {
         const [game] = await pool.query(
-            `SELECT *
-            FROM games
-            WHERE game_id = ?
+            `SELECT g.*, u.user_name
+            FROM games g
+            JOIN users u
+            ON g.game_creator = u.user_id
+            WHERE g.game_id = ?
             `, [gameId]);
         return game[0];
     };
@@ -108,9 +110,9 @@ export class Games {
         const offset = (pageNumber - 1) * pageSize;
 
         const query = `
-            SELECT g.*, u.user_name 
+            SELECT g.*, u.user_name
             FROM games g
-            JOIN users u 
+            JOIN users u
             ON g.game_creator = u.user_id
             WHERE g.available = true
             ORDER BY ?? ${sortOrder}
@@ -149,9 +151,9 @@ export class Games {
     
         // Construct the SQL query with pagination and filter by creator_id
         const query = `
-            SELECT g.*, u.user_name 
+            SELECT g.*, u.user_name
             FROM games g
-            JOIN users u 
+            JOIN users u
             ON g.game_creator = u.user_id
             WHERE g.available = true AND ${filterBy} = ?
             LIMIT ? OFFSET ?;

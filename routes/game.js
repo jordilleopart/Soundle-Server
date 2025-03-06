@@ -1,8 +1,8 @@
-import { query, Router } from 'express';
+import { Router } from 'express';
 import { Games } from '../database/database.js';    // used to access Games table from our MySQL database
 import lobbyManager from '../database/lobbyManager.js';  // used to access LobbyManager singleton instance
 import authenticateJWTToken from '../middlewares/authenticateJWTToken.js';
-import authenticateWSJWTToken from '../middlewares/authenticateWSJWTToken.js';  // used to authenticate WebSocket connections
+import authenticateWSJWTToken from '../middlewares/authenticateWSJWTToken.js';
 
 const gameRouter = Router();
 
@@ -94,6 +94,26 @@ gameRouter.post("/join/:game_id", authenticateJWTToken, async (req, res) => {
     };
 });
 
+// get lobby info
+gameRouter.get("/lobby", authenticateJWTToken, async (req, res) => {
+    const lobbyId = req.query.gameId;
+
+    // Check that we have been given lobbyId as parameter
+    if (!lobbyId) res.status(400).send(JSON.stringify({ message: "Bad Request. Specify a lobby." }));
+
+    // get game
+    const game = await Games.getGameByGameId(lobbyId);
+
+    // check game exists
+    if (!game) return res.status(404).send(JSON.stringify({ message: "Not found. Game does not exist." }));
+    else {
+        if (!lobbyManager.isUserInLobby(lobbyId, req.user.user_id)) res.status(403).send(JSON.stringify({ message: "Forbidden. You have not joined this lobby." }));
+        else {
+            res.send(JSON.stringify({gameInfo: game}));
+        }
+    }
+});
+
 // leave a game
 gameRouter.post("/leave/:game_id", authenticateJWTToken, async (req, res) => {
     const {game_id} = req.params;
@@ -112,20 +132,24 @@ gameRouter.post("/leave/:game_id", authenticateJWTToken, async (req, res) => {
 
 // manage games messages
 // listens at ws://localhost:3000/game/:game_id
-gameRouter.ws("/:game_id", function(ws, req) {
-    
-    // Use the authentication middleware
-    authenticateWSJWTToken(req, ws, () => {
-        const {game_id} = req.params;
+gameRouter.ws("/:game_id", async (ws, req) => {
+    // Retrieve token from query
+    const token = req.query.token;
 
+    // Retrieve lobby id
+    const {game_id} = req.params;
+
+    // Get user id and user name
+    const {user_id, user_name} = await authenticateWSJWTToken(ws, token);
+
+    if (user_id && user_name) {
         // join the game
-        lobbyManager.joinLobby(game_id, ws);
+        lobbyManager.joinLobby(game_id, ws, user_id);
 
         // send message that user has joined the game
-        lobbyManager.broadcastToLobby(game_id, "system", `${ws.user_name} has joined the game.` );
+        lobbyManager.broadcastToLobby(game_id, "system", `${user_name} has joined the game.`);
 
         ws.on('message', function(message) {
-            console.log(message)
             // parse message
             const msg = JSON.parse(message);
 
@@ -133,7 +157,7 @@ gameRouter.ws("/:game_id", function(ws, req) {
             switch (msg.type) {
                 case "chat":
                     // broadcast the message to all players in the game
-                    lobbyManager.broadcastToLobby(game_id, "TBD", msg.content);
+                    lobbyManager.broadcastToLobby(game_id, user_name, msg.content);
                     break;
                 case "start":
                     // start the game
@@ -150,21 +174,21 @@ gameRouter.ws("/:game_id", function(ws, req) {
         // user decides to leave the game
         ws.on('close', function(code, reason) {
             // leave the game
-            lobbyManager.leaveLobby(game_id, ws);
+            lobbyManager.leaveLobby(ws.game_id, ws);
             // send message that user has left the game
 
             switch (code) {
                 case 1000:
                     console.log("User left the game");
-                    lobbyManager.broadcastToLobby(game_id, "system", `${ws.user_name} has left the game.`);
+                    lobbyManager.broadcastToLobby(game_id, "system", `${user_name} has left the game.`);
                     break;
                 case 1008:
-                    lobbyManager.broadcastToLobby(game_id, "system", `${ws.user_name} lost connection.`);
+                    lobbyManager.broadcastToLobby(game_id, "system", `${user_name} lost connection.`);
                     break;
             }
         });
+    }
 
-    });
 });
 
 export default gameRouter;
