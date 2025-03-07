@@ -86,6 +86,8 @@ gameRouter.post("/join/:game_id", authenticateJWTToken, async (req, res) => {
     // if the game was successfully joined, return the game_id
     switch (status) {
         case 200:
+            // join the game
+            lobbyManager.joinLobby(game_id, null, req.user.user_id);
             return res.send(JSON.stringify({gameId: game_id}));
         case 422:
             return res.status(422).send(JSON.stringify({ message: "Unprocessable Entity. Game is full." }));
@@ -124,6 +126,8 @@ gameRouter.post("/leave/:game_id", authenticateJWTToken, async (req, res) => {
     // if the game was successfully joined, return the game_id
     switch (status) {
         case 200:
+            // leave the lobby
+            lobbyManager.leaveLobby(game_id, req.user.user_id);
             return res.send(JSON.stringify({gameId: game_id}));
         case 500:
             return res.status(500).send(JSON.stringify({ message: "Internal Server Error." }));
@@ -173,10 +177,7 @@ gameRouter.ws("/:game_id", async (ws, req) => {
 
         // user decides to leave the game
         ws.on('close', function(code, reason) {
-            // leave the game
-            lobbyManager.leaveLobby(ws.game_id, ws);
             // send message that user has left the game
-
             switch (code) {
                 case 1000:
                     console.log("User left the game");

@@ -9,18 +9,37 @@ class LobbyManager {
 
     // Adds a WebSocket to a specific lobby
     joinLobby(lobbyId, ws, userId) {
-        if (!this.lobbies.has(lobbyId)) {
+        const lobby = this.lobbies.get(lobbyId);
+
+        if (!lobby) {
+            // Create a new lobby if it doesn't exist
+            console.log(`Creating new lobby with ID ${lobbyId} for user ${userId}`);
             this.lobbies.set(lobbyId, {
                 masterId: userId,
                 masterSocket: ws,
                 members: new Map(),  // Map of userId -> WebSocket
             });
         } else {
-            // Add the user to the members map with their userId and WebSocket
-            const lobby = this.lobbies.get(lobbyId);
-            lobby.members.set(userId, ws);
+            // If lobby exists, check if the user is already in the lobby
+            if (this.isUserInLobby(lobbyId, userId)) {
+                // If user is already in the lobby, update their WebSocket
+                console.log(`User ${userId} is reconnecting, updating WebSocket.`);
+                if (this.isMaster(lobbyId, userId)) {
+                    // Update the master socket
+                    lobby.masterSocket = ws;
+                } else {
+                    // Update the member socket
+                    lobby.members.set(userId, ws);
+                }
+            } else {
+                // Add the user as a new member to the lobby
+                console.log(`User ${userId} is joining the lobby.`);
+                lobby.members.set(userId, ws); // Add new user WebSocket
+            }
         }
+        this.printLobbyDetails();
     }
+
 
     // Removes a WebSocket from a specific lobby
     leaveLobby(lobbyId, userId) {
@@ -66,7 +85,8 @@ class LobbyManager {
     isUserInLobby(lobbyId, userId) {
         const lobby = this.lobbies.get(lobbyId);
         if (lobby) {
-            return lobby.members.has(userId);
+            // Check if the user is either the master or a member of the lobby
+            return lobby.masterId === userId || lobby.members.has(userId);
         }
         return false;  // Return false if the lobby doesn't exist
     }
@@ -87,6 +107,26 @@ class LobbyManager {
             this.lobbies.delete(lobbyId);
         }
     }
+
+    // Prints the lobby ID, master user ID, and the list of members with clear distinction
+    printLobbyDetails() {
+        this.lobbies.forEach((lobby, lobbyId) => {
+            console.log(`Lobby ID: ${lobbyId}`);
+            console.log(`Master ID: ${lobby.masterId}`);  // Print master ID
+
+            // Print members of the lobby
+            console.log(`Members:`);
+            if (lobby.members.size > 0) {
+                lobby.members.forEach((ws, userId) => {
+                    console.log(`  - Member ID: ${userId}`);
+                });
+            } else {
+                console.log(`  - No members in this lobby`);
+            }
+            console.log('----------------------');
+        });
+    }
+
 }
 
 const lobbyManager = new LobbyManager();
