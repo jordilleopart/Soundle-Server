@@ -23,7 +23,9 @@ gameRouter.post("/create", authenticateJWTToken, async (req, res) => {
     // also return the code to enter if the game is private
     const game = await Games.getGameByGameId(game_id);
 
-    return res.send(JSON.stringify({gameId: game_id, code: game.game_type}));
+    console.log(game);
+
+    return res.send(JSON.stringify({gameId: game_id, code: game.code}));
 });
 
 // see available games
