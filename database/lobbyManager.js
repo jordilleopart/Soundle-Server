@@ -9,69 +9,72 @@ class LobbyManager {
 
     // Adds a WebSocket to a specific lobby
     joinLobby(lobbyId, ws, userId) {
-        const lobby = this.lobbies.get(lobbyId);
+        let lobby = this.lobbies.get(lobbyId);
 
         if (!lobby) {
-            // Create a new lobby if it doesn't exist
             console.log(`Creating new lobby with ID ${lobbyId} for user ${userId}`);
-            this.lobbies.set(lobbyId, {
+            lobby = {
                 masterId: userId,
                 masterSocket: ws,
-                members: new Map(),  // Map of userId -> WebSocket
-            });
-        } else {
-            // If lobby exists, check if the user is already in the lobby
-            if (this.isUserInLobby(lobbyId, userId)) {
-                // If user is already in the lobby, update their WebSocket
-                console.log(`User ${userId} is reconnecting, updating WebSocket.`);
-                if (this.isMaster(lobbyId, userId)) {
-                    // Update the master socket
-                    lobby.masterSocket = ws;
-                } else {
-                    // Update the member socket
-                    lobby.members.set(userId, ws);
-                }
+                members: new Map(),
+            };
+            this.lobbies.set(lobbyId, lobby);
+        } else if (this.isUserInLobby(lobbyId, userId)) {
+            console.log(`User ${userId} is reconnecting, updating WebSocket.`);
+            if (this.isMaster(lobbyId, userId)) {
+                lobby.masterSocket = ws;
             } else {
-                // Add the user as a new member to the lobby
-                console.log(`User ${userId} is joining the lobby.`);
-                lobby.members.set(userId, ws); // Add new user WebSocket
+                lobby.members.set(userId, ws);
             }
+        } else {
+            console.log(`User ${userId} is joining the lobby.`);
+            lobby.members.set(userId, ws);
         }
-        this.printLobbyDetails();
     }
-
 
     // Removes a WebSocket from a specific lobby
     leaveLobby(lobbyId, userId) {
         const lobby = this.lobbies.get(lobbyId);
-        if (lobby) {
-            // Remove the user from the members map
-            lobby.members.delete(userId);
+        if (!lobby) return;
 
-            // If the user leaving was the master, we need to reassign the master
-            if (lobby.masterId === userId) {
-                // Reassign the first member in the lobby (if any) as the new master
-                const newMaster = Array.from(lobby.members.keys())[0];
-                if (newMaster) {
-                    lobby.masterId = newMaster;
-                    lobby.masterSocket = lobby.members.get(newMaster);
-                } else { // If there are no more members in the lobby, remove it
-                    this.lobbies.delete(lobbyId);
-                }
+        const isMaster = lobby.masterId === userId;
+        lobby.members.delete(userId);
+
+        if (isMaster) {
+            const newMaster = Array.from(lobby.members.keys())[0];
+            if (newMaster) {
+                lobby.masterId = newMaster;
+                lobby.masterSocket = lobby.members.get(newMaster);
+            } else {
+                this.lobbies.delete(lobbyId);  // No members left, delete the lobby
             }
         }
     }
 
+    // Get all WebSockets in a lobby
     getSocketsInLobby(lobbyId) {
-        return this.lobbies.has(lobbyId) ? [...this.lobbies.get(lobbyId).members.values(), this.lobbies.get(lobbyId).masterSocket].filter(Boolean) : [];
+        const lobby = this.lobbies.get(lobbyId);
+        if (!lobby) return [];
+        return [...lobby.members.values(), lobby.masterSocket].filter(Boolean);
     }
-    
+
+    // Returns an array of userIds for all users in the lobby (including master)
+    getUserIdsInLobby(lobbyId) {
+        const lobby = this.lobbies.get(lobbyId);
+        if (!lobby) return [];  // If lobby does not exist, return an empty array
+
+        // Create an array of userIds including the master and the members
+        const userIds = [lobby.masterId, ...Array.from(lobby.members.keys())];
+
+        return userIds;
+    }
+
     // Broadcasts a message to all WebSocket connections in a specific lobby
-    broadcastToLobby(lobbyId, author, content) {
+    broadcastToLobby(lobbyId, message) {
         const wss = this.getSocketsInLobby(lobbyId);
 
         wss.forEach(ws => {
-            ws.send(JSON.stringify({ "author": author, "content": content }));  // Sending a message to each WebSocket
+            ws.send(message);
         });
     }
 
@@ -84,37 +87,24 @@ class LobbyManager {
     // Checks if a user is in a specific lobby
     isUserInLobby(lobbyId, userId) {
         const lobby = this.lobbies.get(lobbyId);
-        if (lobby) {
-            // Check if the user is either the master or a member of the lobby
-            return lobby.masterId === userId || lobby.members.has(userId);
-        }
-        return false;  // Return false if the lobby doesn't exist
+        return lobby ? lobby.masterId === userId || lobby.members.has(userId) : false;
     }
 
     // Closes all WebSocket connections in a specific lobby
     closeAllConnectionsInLobby(lobbyId) {
         const lobby = this.lobbies.get(lobbyId);
-        if (lobby) {
-            // Close the master connection
-            lobby.masterSocket.close(1000, "Game finished.");
+        if (!lobby) return;
 
-            // Close all member connections
-            lobby.members.forEach((ws) => {
-                ws.close(1000, "Game finished.");
-            });
-
-            // Remove the lobby from the manager once all connections are closed
-            this.lobbies.delete(lobbyId);
-        }
+        lobby.masterSocket.close(1000, "Game finished.");
+        lobby.members.forEach((ws) => ws.close(1000, "Game finished."));
+        this.lobbies.delete(lobbyId);
     }
 
     // Prints the lobby ID, master user ID, and the list of members with clear distinction
     printLobbyDetails() {
         this.lobbies.forEach((lobby, lobbyId) => {
             console.log(`Lobby ID: ${lobbyId}`);
-            console.log(`Master ID: ${lobby.masterId}`);  // Print master ID
-
-            // Print members of the lobby
+            console.log(`Master ID: ${lobby.masterId}`);
             console.log(`Members:`);
             if (lobby.members.size > 0) {
                 lobby.members.forEach((ws, userId) => {
@@ -126,7 +116,6 @@ class LobbyManager {
             console.log('----------------------');
         });
     }
-
 }
 
 const lobbyManager = new LobbyManager();

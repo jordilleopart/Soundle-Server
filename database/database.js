@@ -55,6 +55,19 @@ export class Users {
             `, [user_id]);
         return user[0];
     }
+
+    static async getUsersSnippet(user_ids) {
+        try {
+            const [users] = await pool.query(
+                `SELECT user_name
+                FROM users
+                WHERE user_id IN (?)
+                `, [user_ids]);
+            return users;
+        } catch (err) {
+            return 500; // Return 500 for internal server error
+        }
+    }
 }
 
 export class Games {
@@ -145,7 +158,7 @@ export class Games {
         }
     };
 
-    static async filteredAvailableGames(filterBy = 'game_creator', filterValue, pageNumber = 1, pageSize = 5) {
+    static async filteredAvailableGames(filterBy = 'u.user_name', filterValue, pageNumber = 1, pageSize = 5) {
         // Calculate the offset for pagination
         const offset = (pageNumber - 1) * pageSize;
     

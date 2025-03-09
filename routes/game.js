@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { Games } from '../database/database.js';    // used to access Games table from our MySQL database
+import { Users, Games } from '../database/database.js';    // used to access Games table from our MySQL database
 import lobbyManager from '../database/lobbyManager.js';  // used to access LobbyManager singleton instance
 import authenticateJWTToken from '../middlewares/authenticateJWTToken.js';
 import authenticateWSJWTToken from '../middlewares/authenticateWSJWTToken.js';
@@ -118,6 +118,26 @@ gameRouter.get("/lobby", authenticateJWTToken, async (req, res) => {
     }
 });
 
+gameRouter.get("/users", authenticateJWTToken, async (req, res) => {
+    const lobbyId = req.query.gameId;
+
+    // Check that we have been given lobbyId as parameter
+    if (!lobbyId) res.status(400).send(JSON.stringify({ message: "Bad Request. Specify a lobby." }));
+
+    // get users in lobby
+    const userIds = lobbyManager.getUserIdsInLobby(lobbyId);
+
+    // retrieve snippet for each user
+    const users = await Users.getUsersSnippet(userIds);
+
+    console.log(users);
+
+    if (users === 500) res.status(500).send(JSON.stringify({ message: "Internal Server Error." }));
+    else {
+        return res.send(JSON.stringify({"users": users}));
+    }
+});
+
 // leave a game
 gameRouter.post("/leave/:game_id", authenticateJWTToken, async (req, res) => {
     const {game_id} = req.params;
@@ -153,7 +173,7 @@ gameRouter.ws("/:game_id", async (ws, req) => {
         lobbyManager.joinLobby(game_id, ws, user_id);
 
         // send message that user has joined the game
-        lobbyManager.broadcastToLobby(game_id, "system", `${user_name} has joined the game.`);
+        lobbyManager.broadcastToLobby(game_id, JSON.stringify({type: "system", author: "system", content: `${user_name} has joined the game.`}));
 
         ws.on('message', function(message) {
             // parse message
@@ -163,7 +183,7 @@ gameRouter.ws("/:game_id", async (ws, req) => {
             switch (msg.type) {
                 case "chat":
                     // broadcast the message to all players in the game
-                    lobbyManager.broadcastToLobby(game_id, user_name, msg.content);
+                    lobbyManager.broadcastToLobby(game_id, JSON.stringify({type: "chat", author: user_name, content: msg.content}), user_id);
                     break;
                 case "start":
                     // start the game
@@ -182,11 +202,10 @@ gameRouter.ws("/:game_id", async (ws, req) => {
             // send message that user has left the game
             switch (code) {
                 case 1000:
-                    console.log("User left the game");
-                    lobbyManager.broadcastToLobby(game_id, "system", `${user_name} has left the game.`);
+                    lobbyManager.broadcastToLobby(game_id, JSON.stringify({type: "system", author: "system", content: `${user_name} has left the game.`}));
                     break;
                 case 1008:
-                    lobbyManager.broadcastToLobby(game_id, "system", `${user_name} lost connection.`);
+                    lobbyManager.broadcastToLobby(game_id, JSON.stringify({type: "system", author: "system", content: `${user_name} lost connection.`}));
                     break;
             }
         });
