@@ -1,32 +1,33 @@
 import jwt from 'jsonwebtoken';
 
-// WebSocket authentication middleware
-function authenticateWSJWTToken(req, ws, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    // if no token, close connection with "Policy Violation" code
+// WebSocket authentication middleware using async/await
+async function authenticateWSJWTToken(ws, token) {
+    // If no token, close connection with "Policy Violation" code
     if (!token) {
         ws.close(1008, JSON.stringify({ message: "Log in to see the content." }));
-        return;
+        return {
+            user_id: undefined,
+            user_name: undefined,
+        };
     }
 
-    // Verify JWT Token
-    jwt.verify(token, process.env.JWT_SECRET_TOKEN, (err, user) => {
-        // If token is not valid, send "403 - Forbidden"
-        if (err) {
-            ws.close(1008, JSON.stringify({ message: "Token expired. Please log in again." }));
-            return;
-        }
+    try {
+        // Verify JWT Token
+        const user = await jwt.verify(token, process.env.JWT_SECRET_TOKEN);
 
-        // Attach user to WebSocket instance for further use
-        ws.user_name = user.user_name;
-
-        // Proceed with the connection
-        next();
-    });
-    next();
-};
-
+        // If token is valid, return user info
+        return {
+            user_id: user.user_id,
+            user_name: user.user_name,
+        };
+    } catch (err) {
+        // If token is invalid, send "403 - Forbidden"
+        ws.close(1008, JSON.stringify({ message: "Token expired. Please log in again." }));
+        return {
+            user_id: undefined,
+            user_name: undefined,
+        };
+    }
+}
 
 export default authenticateWSJWTToken;

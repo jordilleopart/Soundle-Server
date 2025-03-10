@@ -55,9 +55,33 @@ export class Users {
             `, [user_id]);
         return user[0];
     }
+
+    static async getUsersSnippet(user_ids) {
+        try {
+            const [users] = await pool.query(
+                `SELECT user_name
+                FROM users
+                WHERE user_id IN (?)
+                `, [user_ids]);
+            return users;
+        } catch (err) {
+            return 500; // Return 500 for internal server error
+        }
+    }
 }
 
 export class Games {
+    static async getGameByGameId(gameId) {
+        const [game] = await pool.query(
+            `SELECT g.*, u.user_name
+            FROM games g
+            JOIN users u
+            ON g.game_creator = u.user_id
+            WHERE g.game_id = ?
+            `, [gameId]);
+        return game[0];
+    };
+
     static async systemDefaultGame(playlist) {
         // Create an uuid for the game
         const gameId = uuidv4();
@@ -94,15 +118,19 @@ export class Games {
         return gameId;
     }
 
-    static async sortedAvailableGames(sortBy = 'creation_date', sortOrder = 'DESC', pageNumber = 1, pageSize = 10) {
+    static async sortedAvailableGames(sortBy = 'creation_date', sortOrder = 'DESC', pageNumber = 1, pageSize = 5) {
         // Calculate the offset for pagination
         const offset = (pageNumber - 1) * pageSize;
-        
+
         const query = `
-            SELECT * FROM games
-            WHERE available = true
+            SELECT g.*, u.user_name
+            FROM games g
+            JOIN users u
+            ON g.game_creator = u.user_id
+            WHERE g.available = true
             ORDER BY ?? ${sortOrder}
-            LIMIT ? OFFSET ?;`;
+            LIMIT ? OFFSET ?;
+            `;
 
         try {
             const [games] = await pool.query(query, [sortBy, pageSize, offset]);
@@ -130,16 +158,19 @@ export class Games {
         }
     };
 
-    static async filteredAvailableGames(filterBy = 'game_creator', filterValue, pageNumber = 1, pageSize = 10) {
+    static async filteredAvailableGames(filterBy = 'u.user_name', filterValue, pageNumber = 1, pageSize = 5) {
         // Calculate the offset for pagination
         const offset = (pageNumber - 1) * pageSize;
     
         // Construct the SQL query with pagination and filter by creator_id
         const query = `
-            SELECT * FROM games
-            WHERE available = true AND ${filterBy} = ?
+            SELECT g.*, u.user_name
+            FROM games g
+            JOIN users u
+            ON g.game_creator = u.user_id
+            WHERE g.available = true AND ${filterBy} = ?
             LIMIT ? OFFSET ?;
-        `;
+            `;
     
         try {
             const [games] = await pool.query(query, [filterValue, pageSize, offset]);

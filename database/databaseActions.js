@@ -84,7 +84,7 @@ export const importDatabase = async (inputFilePath) => {
 // Delete the Database
 export const deleteDatabase = async () => {
     try {
-        const query = `DROP DATABASE IF EXISTS ${dbConfig.database};`;
+        const query = `DROP DATABASE IF EXISTS ${process.env.MYSQL_DB};`;
         await pool.query(query);
         console.log('Database deleted successfully');
     } catch (err) {
