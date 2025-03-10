@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS game_scores (
 
 DROP TRIGGER IF EXISTS after_user_insert;
 
+-- Initialize stats for new user
 CREATE TRIGGER after_user_insert
 AFTER INSERT ON users
 FOR EACH ROW
@@ -85,6 +86,7 @@ END;
 
 DROP TRIGGER IF EXISTS before_insert_game;
 
+-- Automatically generate code for private games
 CREATE TRIGGER before_insert_game
 BEFORE INSERT ON games
 FOR EACH ROW
@@ -93,3 +95,13 @@ BEGIN
         SET NEW.code = UPPER(SUBSTRING(UUID(), 1, 6));  -- Extract 6 characters from UUID and convert to uppercase
     END IF;
 END;
+
+-- Set to non-available any game that was created more than 24h ago and is still available (cleaning possible glitched games)
+CREATE EVENT IF NOT EXISTS update_game_availability
+ON SCHEDULE EVERY 1 DAY
+STARTS '2025-03-05 00:00:00'
+DO
+    UPDATE games
+    SET available = FALSE
+    WHERE available = TRUE
+    AND creation_date < NOW() - INTERVAL 1 DAY;
