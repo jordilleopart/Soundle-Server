@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS track (
     track_artist VARCHAR(255) NOT NULL,
     track_release_date DATE NOT NULL,
     track_cover_url VARCHAR(255) NOT NULL,
-    track_preview_url VARCHAR(255)
+    track_audio_path VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS userStats (

@@ -293,7 +293,7 @@ export class Games {
 export class Track {
     static async createNewTrack(id, name, artist, release_date, album_cover_url, preview_url) {
         await pool.query(
-            `INSERT INTO track (track_id, track_name, track_artist, track_release_date, track_cover_url, track_preview_url)
+            `INSERT INTO track (track_id, track_name, track_artist, track_release_date, track_cover_url, track_audio_path)
             VALUES (?, ?, ?, ?, ?, ?)
             `, [id, name, artist, release_date, album_cover_url, preview_url]);
     }
@@ -309,7 +309,7 @@ export class Track {
   
     static async getRandomTrack() {
         const [track] = await pool.query(
-            `SELECT track_id, track_name, track_artist, track_release_date, track_cover_url, track_preview_url
+            `SELECT track_id, track_name, track_artist, track_release_date, track_cover_url, track_audio_path
             FROM track
             ORDER BY RAND()
             LIMIT 1

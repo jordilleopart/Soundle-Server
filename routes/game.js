@@ -23,8 +23,6 @@ gameRouter.post("/create", authenticateJWTToken, async (req, res) => {
     // also return the code to enter if the game is private
     const game = await Games.getGameByGameId(game_id);
 
-    console.log(game);
-
     return res.send(JSON.stringify({gameId: game_id, code: game.code}));
 });
 
@@ -129,9 +127,7 @@ gameRouter.get("/users", authenticateJWTToken, async (req, res) => {
 
     // retrieve snippet for each user
     const users = await Users.getUsersSnippet(userIds);
-
-    console.log(users);
-
+    
     if (users === 500) res.status(500).send(JSON.stringify({ message: "Internal Server Error." }));
     else {
         return res.send(JSON.stringify({"users": users}));
@@ -198,16 +194,9 @@ gameRouter.ws("/:game_id", async (ws, req) => {
         });
 
         // user decides to leave the game
-        ws.on('close', function(code, reason) {
+        ws.on('close', function() {
             // send message that user has left the game
-            switch (code) {
-                case 1000:
-                    lobbyManager.broadcastToLobby(game_id, JSON.stringify({type: "system", author: "system", content: `${user_name} has left the game.`}));
-                    break;
-                case 1008:
-                    lobbyManager.broadcastToLobby(game_id, JSON.stringify({type: "system", author: "system", content: `${user_name} lost connection.`}));
-                    break;
-            }
+            lobbyManager.broadcastToLobby(game_id, JSON.stringify({type: "system", author: "system", content: `${user_name} has left the game.`}));
         });
     }
 
