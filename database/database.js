@@ -257,9 +257,6 @@ export class Games {
             return 500;  // 500 Internal Server Error for unexpected error
         }
     };
-
-    //TODO :
-    static async playersInGame(gameId) {}
 }
 
 export class Track {

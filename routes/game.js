@@ -79,7 +79,6 @@ gameRouter.ws("/:game_id", function(ws, req) {
         lobbyManager.broadcastToLobby(game_id, "system", `${ws.user_name} has joined the game.` );
 
         ws.on('message', function(message) {
-            console.log(message)
             // parse message
             const msg = JSON.parse(message);
 
@@ -109,7 +108,6 @@ gameRouter.ws("/:game_id", function(ws, req) {
 
             switch (code) {
                 case 1000:
-                    console.log("User left the game");
                     lobbyManager.broadcastToLobby(game_id, "system", `${ws.user_name} has left the game.`);
                     break;
                 case 1008:

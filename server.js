@@ -40,7 +40,7 @@ app.use("/login", loginRouter);
 app.use("/signup", signupRouter);
 app.use("/game", (await import('./routes/game.js')).default);
 
-//app.use(authenticateJWTToken);
+app.use(authenticateJWTToken);
 app.use("/profile", profileRouter);
 app.use("/logout", logoutRouter);
 
