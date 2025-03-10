@@ -169,7 +169,7 @@ gameRouter.ws("/:game_id", async (ws, req) => {
         lobbyManager.joinLobby(game_id, ws, user_id);
 
         // send message that user has joined the game
-        lobbyManager.broadcastToLobby(game_id, JSON.stringify({type: "system", author: "system", content: `${user_name} has joined the game.`}));
+        lobbyManager.broadcastToLobby(game_id, JSON.stringify({type: "chat", subtype: "system", content: `${user_name} has joined the game.`}));
 
         ws.on('message', function(message) {
             // parse message
@@ -179,7 +179,8 @@ gameRouter.ws("/:game_id", async (ws, req) => {
             switch (msg.type) {
                 case "chat":
                     // broadcast the message to all players in the game
-                    lobbyManager.broadcastToLobby(game_id, JSON.stringify({type: "chat", author: user_name, content: msg.content}), user_id);
+                    if (msg.subtype) lobbyManager.broadcastToLobby(game_id, JSON.stringify({type: "chat", subtype: msg.subtype, content: msg.content}));
+                    else lobbyManager.broadcastToLobby(game_id, JSON.stringify({type: "chat", author: user_name, content: msg.content}));
                     break;
                 case "start":
                     // start the game
@@ -196,7 +197,7 @@ gameRouter.ws("/:game_id", async (ws, req) => {
         // user decides to leave the game
         ws.on('close', function() {
             // send message that user has left the game
-            lobbyManager.broadcastToLobby(game_id, JSON.stringify({type: "system", author: "system", content: `${user_name} has left the game.`}));
+            lobbyManager.broadcastToLobby(game_id, JSON.stringify({type: "chat", subtype: "system", content: `${user_name} has left the game.`}));
         });
     }
 
