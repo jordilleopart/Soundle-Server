@@ -12,7 +12,6 @@ class LobbyManager {
         let lobby = this.lobbies.get(lobbyId);
 
         if (!lobby) {
-            console.log(`Creating new lobby with ID ${lobbyId} for user ${userId}`);
             lobby = {
                 masterId: userId,
                 masterSocket: ws,
@@ -20,14 +19,12 @@ class LobbyManager {
             };
             this.lobbies.set(lobbyId, lobby);
         } else if (this.isUserInLobby(lobbyId, userId)) {
-            console.log(`User ${userId} is reconnecting, updating WebSocket.`);
             if (this.isMaster(lobbyId, userId)) {
                 lobby.masterSocket = ws;
             } else {
                 lobby.members.set(userId, ws);
             }
         } else {
-            console.log(`User ${userId} is joining the lobby.`);
             lobby.members.set(userId, ws);
         }
     }
