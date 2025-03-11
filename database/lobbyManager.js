@@ -18,41 +18,59 @@ class LobbyManager {
                 members: new Map(),
             };
             this.lobbies.set(lobbyId, lobby);
-        } else if (this.isUserInLobby(lobbyId, userId)) {
-            if (this.isMaster(lobbyId, userId)) {
-                lobby.masterSocket = ws;
-            } else {
-                lobby.members.set(userId, ws);
-            }
+            return;
+        }
+
+        if (this.isMaster(lobbyId, userId)) {
+            lobby.masterSocket = ws;
         } else {
             lobby.members.set(userId, ws);
         }
+
+        this.printLobbyDetails();
     }
 
     // Removes a WebSocket from a specific lobby
     leaveLobby(lobbyId, userId) {
         const lobby = this.lobbies.get(lobbyId);
         if (!lobby) return;
-
+    
         const isMaster = lobby.masterId === userId;
-        lobby.members.delete(userId);
 
+        console.log(isMaster);
+    
+        // If the user is the master, handle master reassignment
         if (isMaster) {
-            const newMaster = Array.from(lobby.members.keys())[0];
-            if (newMaster) {
+            const remainingMembers = Array.from(lobby.members.keys());
+    
+            // If there are remaining members, promote a new master
+            if (remainingMembers.length >= 1) { // More than 1 member left
+                const newMaster = remainingMembers[0]; // Assign the first remaining member as the new master
                 lobby.masterId = newMaster;
                 lobby.masterSocket = lobby.members.get(newMaster);
+    
+                // Now that the new master is assigned, remove the old master from members
+                lobby.members.delete(userId);
             } else {
-                this.lobbies.delete(lobbyId);  // No members left, delete the lobby
+                // If no members are left after the master leaves, delete the lobby
+                this.lobbies.delete(lobbyId);
             }
+
+            console.log(lobby.masterId)
+
+        } else {
+            // If the user is not the master, just remove from the members list
+            lobby.members.delete(userId);
         }
+
+        this.printLobbyDetails();
     }
 
     // Get all WebSockets in a lobby
     getSocketsInLobby(lobbyId) {
         const lobby = this.lobbies.get(lobbyId);
         if (!lobby) return [];
-        return [...lobby.members.values(), lobby.masterSocket].filter(Boolean);
+        return [ lobby.masterSocket, ...lobby.members.values()].filter(Boolean);
     }
 
     // Returns an array of userIds for all users in the lobby (including master)
