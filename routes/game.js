@@ -178,12 +178,10 @@ gameRouter.ws("/:game_id", async (ws, req) => {
             // manage different types of messages
             switch (msg.type) {
                 case "chat":
-                    // broadcast the message to all players in the game
-                    if (msg.subtype) lobbyManager.broadcastToLobby(game_id, JSON.stringify({type: "chat", subtype: msg.subtype, content: msg.content}));
-                    else lobbyManager.broadcastToLobby(game_id, JSON.stringify({type: "chat", author: user_name, content: msg.content}));
-                    break;
                 case "start":
-                    // start the game
+                case "track":
+                    // broadcast the message to all players in the game
+                    lobbyManager.broadcastToLobby(game_id, message);
                     break;
                 case "next":
                     // next round
