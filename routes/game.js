@@ -179,6 +179,8 @@ gameRouter.ws("/:game_id", async (ws, req) => {
             switch (msg.type) {
                 case "chat":
                 case "start":
+                case "next":
+                case "end":
                 case "track":
                     // broadcast the message to all players in the game
                     lobbyManager.broadcastToLobby(game_id, message);
