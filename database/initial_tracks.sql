@@ -6,7 +6,7 @@ VALUES
 ('0VgkVdmE4gld66l8iyGjgx', 'Mask Off', 'Future', '2017-06-30', 'https://i.scdn.co/image/ab67616d0000b273e0b64c8be3c4e804abcb2696', 'mp3/Future-MaskOff.mp3'),
 ('0wwPcA6wtMf6HUMpIRdeP7', 'Hotline Bling', 'Drake', '2016-05-06', 'https://i.scdn.co/image/ab67616d0000b2739416ed64daf84936d89e671c', 'mp3/Drake-HotlineBling.mp3'),
 ('1wHZx0LgzFHyeIZkUydNXq', 'Antidote', 'Travis Scott', '2015-09-04', 'https://i.scdn.co/image/ab67616d0000b2736cfd9a7353f98f5165ea6160', 'mp3/TravisScott-Antidote.mp3'),
-('2xLMifQCjDGFmkHkpNLD9h', 'SICKO MODE', 'Travis Scott', '2018-08-03', 'https://i.scdn.co/image/ab67616d0000b273072e9faef2ef7b6db63834a3', 'mp3/TravisScott-SICKOMODEft.Drake.mp3'),
+-- ('2xLMifQCjDGFmkHkpNLD9h', 'SICKO MODE', 'Travis Scott', '2018-08-03', 'https://i.scdn.co/image/ab67616d0000b273072e9faef2ef7b6db63834a3', 'mp3/TravisScott-SICKOMODEft.Drake.mp3'),
 ('34xTFwjPQ1dC6uJmleno7x', 'Godspeed', 'Frank Ocean', '2016-08-20', 'https://i.scdn.co/image/ab67616d0000b273c5649add07ed3720be9d5526', 'mp3/FrankOcean-Godspeed.mp3'),
 ('3AWDeHLc88XogCaCnZQLVI', 'Cry For Me', 'The Weeknd', '2025-01-31', 'https://i.scdn.co/image/ab67616d0000b2737e7f1d0bdb2bb5a2afc4fb25', 'mp3/TheWeeknd-CryForMe.mp3'),
 ('4EWCNWgDS8707fNSZ1oaA5', 'Heartless', 'Kanye West', '2008-11-24', 'https://i.scdn.co/image/ab67616d0000b273346d77e155d854735410ed18', 'mp3/KanyeWest-Heartless.mp3'),
@@ -17,7 +17,7 @@ VALUES
 ('7wBJfHzpfI3032CSD7CE2m', 'STARGAZING', 'Travis Scott', '2018-08-03', 'https://i.scdn.co/image/ab67616d0000b273072e9faef2ef7b6db63834a3', 'mp3/TravisScott-STARGAZING.mp3'),
 ('0M9ydKzuF3oZTfYYPfaGX1', 'Bad and Boujee (feat. Lil Uzi Vert)', 'Migos, Lil Uzi Vert', '2017-01-27', 'https://i.scdn.co/image/ab67616d0000b2736275aeac316378b0dd4f31fd', 'mp3/Migos-BadandBoujeeftLilUziVert.mp3'),
 ('7GX5flRQZVHRAGd6B4TmDO', 'XO Tour Llif3', 'Lil Uzi Vert', '2017-08-25', 'https://i.scdn.co/image/ab67616d0000b273aab4824c720639a6a2d7d932', 'mp3/LilUziVert-XOTourLlif3.mp3'),
-('2t8yVaLvJ0RenpXUIAC52d', 'a lot', '21 Savage', '2018-12-21', 'https://i.scdn.co/image/ab67616d0000b273280689ecc5e4b2038bb5e4bd', 'mp3/TravisScott-SICKOMODEft.Drake.mp3'), -- NO AUDIO
+-- ('2t8yVaLvJ0RenpXUIAC52d', 'a lot', '21 Savage', '2018-12-21', 'https://i.scdn.co/image/ab67616d0000b273280689ecc5e4b2038bb5e4bd', 'mp3/TravisScott-SICKOMODEft.Drake.mp3'), -- NO AUDIO
 ('1e1JKLEDKP7hEQzJfNAgPl', 'Magnolia', 'Playboi Carti', '2017-04-14', 'https://i.scdn.co/image/ab67616d0000b273e31a279d267f3b3d8912e6f1', 'mp3/PlayboiCarti-Magnolia.mp3'),
 ('0e7ipj03S05BNilyu5bRzt', 'rockstar', 'Post Malone, 21 Savage', '2018-04-27', 'https://i.scdn.co/image/ab67616d0000b273b1c4b76e23414c9f20242268', 'mp3/PostMaloneft.21Savage-rockstar.mp3'),
 ('0nbXyq5TXYPCO7pr3N8S4I', 'The Box', 'Roddy Ricch', '2019-12-06', 'https://i.scdn.co/image/ab67616d0000b273600adbc750285ea1a8da249f', 'mp3/RoddyRicch-TheBox.mp3'),
