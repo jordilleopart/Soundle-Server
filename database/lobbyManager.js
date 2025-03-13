@@ -7,7 +7,7 @@ class LobbyManager {
         LobbyManager.instance = this;
     }
 
-    // Adds a WebSocket to a specific lobby
+    // Adds a WebSocket to a specific lobby with an initial points value
     joinLobby(lobbyId, ws, userId) {
         let lobby = this.lobbies.get(lobbyId);
 
@@ -15,6 +15,7 @@ class LobbyManager {
             lobby = {
                 masterId: userId,
                 masterSocket: ws,
+                masterPoints: 0,
                 members: new Map(),
             };
             this.lobbies.set(lobbyId, lobby);
@@ -24,7 +25,8 @@ class LobbyManager {
         if (this.isMaster(lobbyId, userId)) {
             lobby.masterSocket = ws;
         } else {
-            lobby.members.set(userId, ws);
+            // Instead of just saving the WebSocket, save an object with ws and points
+            lobby.members.set(userId, { ws: ws, points: 0 });
         }
 
         this.printLobbyDetails();
@@ -47,7 +49,7 @@ class LobbyManager {
             if (remainingMembers.length >= 1) { // More than 1 member left
                 const newMaster = remainingMembers[0]; // Assign the first remaining member as the new master
                 lobby.masterId = newMaster;
-                lobby.masterSocket = lobby.members.get(newMaster);
+                lobby.masterSocket = lobby.members.get(newMaster).ws;
     
                 // Now that the new master is assigned, remove the old master from members
                 lobby.members.delete(userId);
@@ -70,7 +72,7 @@ class LobbyManager {
     getSocketsInLobby(lobbyId) {
         const lobby = this.lobbies.get(lobbyId);
         if (!lobby) return [];
-        return [ lobby.masterSocket, ...lobby.members.values()].filter(Boolean);
+        return [lobby.masterSocket, ...Array.from(lobby.members.values()).map(member => member.ws)].filter(Boolean);
     }
 
     // Returns an array of userIds for all users in the lobby (including master)
@@ -111,25 +113,45 @@ class LobbyManager {
         if (!lobby) return;
 
         lobby.masterSocket.close(1000, "Game finished.");
-        lobby.members.forEach((ws) => ws.close(1000, "Game finished."));
+        lobby.members.forEach((member) => member.ws.close(1000, "Game finished."));
         this.lobbies.delete(lobbyId);
     }
 
-    // Prints the lobby ID, master user ID, and the list of members with clear distinction
+    // Prints the lobby ID, master user ID, and the list of members with their points
     printLobbyDetails() {
         this.lobbies.forEach((lobby, lobbyId) => {
             console.log(`Lobby ID: ${lobbyId}`);
             console.log(`Master ID: ${lobby.masterId}`);
+            console.log(`Master Points: ${lobby.masterPoints}`);
             console.log(`Members:`);
             if (lobby.members.size > 0) {
-                lobby.members.forEach((ws, userId) => {
-                    console.log(`  - Member ID: ${userId}`);
+                lobby.members.forEach((member, userId) => {
+                    console.log(`  - Member ID: ${userId}, Points: ${member.points}`);
                 });
             } else {
                 console.log(`  - No members in this lobby`);
             }
             console.log('----------------------');
         });
+    }
+
+    // Updates the points of a user in a specific lobby
+    addUserPoints(lobbyId, userId, points) {
+        const lobby = this.lobbies.get(lobbyId);
+        if (!lobby) return;
+
+        if (lobby.masterId === userId) {
+            // Since master is not stored in members map, we access master directly
+            lobby.masterPoints += points;
+        } else {
+            // Update points for member
+            const member = lobby.members.get(userId);
+            if (member) {
+                member.points += points;
+            }
+        }
+
+        this.printLobbyDetails();
     }
 }
 

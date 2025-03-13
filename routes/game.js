@@ -127,7 +127,18 @@ gameRouter.get("/users", authenticateJWTToken, async (req, res) => {
 
     // retrieve snippet for each user
     const users = await Users.getUsersSnippet(userIds);
-    
+
+    // also add points
+    const lobby = lobbyManager.lobbies.get(lobbyId);
+
+    if (users && users !== 500) {
+        users.forEach(user => {
+            const member = lobby.members.get(user.user_id)
+            if (member) user.points = member.points;
+            else user.points = lobby.masterPoints;
+        })    
+    }
+
     if (users === 500) res.status(500).send(JSON.stringify({ message: "Internal Server Error." }));
     else {
         return res.send(JSON.stringify({"users": users}));

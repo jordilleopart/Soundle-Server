@@ -59,7 +59,7 @@ export class Users {
     static async getUsersSnippet(user_ids) {
         try {
             const [users] = await pool.query(
-                `SELECT user_name
+                `SELECT user_id, user_name
                 FROM users
                 WHERE user_id IN (?)
                 `, [user_ids]);
