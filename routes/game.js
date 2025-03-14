@@ -131,6 +131,8 @@ gameRouter.get("/users", authenticateJWTToken, async (req, res) => {
     // also add points
     const lobby = lobbyManager.lobbies.get(lobbyId);
 
+    lobbyManager.printLobbyDetails();
+
     if (users && users !== 500) {
         users.forEach(user => {
             const member = lobby.members.get(user.user_id)
@@ -138,6 +140,8 @@ gameRouter.get("/users", authenticateJWTToken, async (req, res) => {
             else user.points = lobby.masterPoints;
         })    
     }
+
+    console.log(users)
 
     if (users === 500) res.status(500).send(JSON.stringify({ message: "Internal Server Error." }));
     else {
@@ -189,6 +193,12 @@ gameRouter.ws("/:game_id", async (ws, req) => {
             // manage different types of messages
             switch (msg.type) {
                 case "chat":
+                    // if message is of "correct" subtype, update points for that user
+                    if (msg.subtype === "correct") lobbyManager.addUserPoints(game_id, user_id, msg.gameInfo.points);
+
+                    // broadcast the message to all players in the game
+                    lobbyManager.broadcastToLobby(game_id, message);
+                    break;
                 case "start":
                 case "next":
                 case "end":

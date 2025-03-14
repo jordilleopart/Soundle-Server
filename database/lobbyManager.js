@@ -12,6 +12,7 @@ class LobbyManager {
         let lobby = this.lobbies.get(lobbyId);
 
         if (!lobby) {
+            // If the lobby doesn't exist, create a new lobby
             lobby = {
                 masterId: userId,
                 masterSocket: ws,
@@ -23,14 +24,23 @@ class LobbyManager {
         }
 
         if (this.isMaster(lobbyId, userId)) {
+            // If the user is the master, update the master's WebSocket
             lobby.masterSocket = ws;
         } else {
-            // Instead of just saving the WebSocket, save an object with ws and points
-            lobby.members.set(userId, { ws: ws, points: 0 });
+            // If the user is not the master, check if they are already a member
+            if (!lobby.members.has(userId)) {
+                // If the user is not already a member, add them with 0 points
+                lobby.members.set(userId, { ws: ws, points: 0 });
+            } else {
+                // If the user is already a member, just update the WebSocket without resetting points
+                let user = lobby.members.get(userId);
+                user.ws = ws; // Update WebSocket only
+            }
         }
 
         this.printLobbyDetails();
     }
+
 
     // Removes a WebSocket from a specific lobby
     leaveLobby(lobbyId, userId) {
@@ -38,8 +48,6 @@ class LobbyManager {
         if (!lobby) return;
     
         const isMaster = lobby.masterId === userId;
-
-        console.log(isMaster);
     
         // If the user is the master, handle master reassignment
         if (isMaster) {
@@ -57,8 +65,6 @@ class LobbyManager {
                 // If no members are left after the master leaves, delete the lobby
                 this.lobbies.delete(lobbyId);
             }
-
-            console.log(lobby.masterId)
 
         } else {
             // If the user is not the master, just remove from the members list
