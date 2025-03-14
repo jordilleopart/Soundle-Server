@@ -141,8 +141,6 @@ gameRouter.get("/users", authenticateJWTToken, async (req, res) => {
         })    
     }
 
-    console.log(users)
-
     if (users === 500) res.status(500).send(JSON.stringify({ message: "Internal Server Error." }));
     else {
         return res.send(JSON.stringify({"users": users}));
