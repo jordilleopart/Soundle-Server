@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
     last_name VARCHAR(50) NOT NULL,
     user_email VARCHAR(50) NOT NULL UNIQUE,
     user_name VARCHAR(50) NOT NULL UNIQUE,
-    user_password CHAR(32) NOT NULL,
+    user_password CHAR(32), -- NOT NULL (modificat per poder afegir el usuaris de google)
     join_date TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
